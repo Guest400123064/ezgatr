@@ -1,6 +1,6 @@
 import torch
 
-from ezgatr.primitives._bilinear import geometric_product
+from ezgatr.primitives.bilinear import geometric_product
 
 
 class Point:
@@ -129,9 +129,7 @@ class Rotation:
 
 
 class Translation:
-    """
-    Interface for translation to and from PGA
-    """
+    """Interface for translation to and from PGA"""
 
     @staticmethod
     def encode(directions):
