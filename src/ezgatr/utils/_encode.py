@@ -1,9 +1,6 @@
-"""
-Interface for encoding and decoding geometric entities to and from Projective Geometric
-Algebra (PGA) representation. The classes mainly serve as a name space to cover the
-conversion utilities for different geometric entities.
-"""
 import torch
+
+from ezgatr.primitives._bilinear import geometric_product
 
 
 class Point:
