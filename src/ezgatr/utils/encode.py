@@ -57,15 +57,16 @@ class Plane:
     """
 
     @staticmethod
-    def encode(normals, positions):
+    def encode(normals, distance):
         """Encode oriented planes to PGA.
 
         Parameters
         ----------
         normals : torch.Tensor
             Normal vectors of the planes with shape (..., 3).
-        positions : torch.Tensor
-            One position on the planes with shape (..., 3).
+        distance : torch.Tensor
+            One position on the planes with shape (..., 3),
+            or the distance to the origin (scalar).
 
         Returns
         -------
@@ -76,16 +77,24 @@ class Plane:
 
         mvs[..., 2:5] = normals[..., :]
 
-        translation = Translation.encode(positions)
-        inverse_translation = Translation.encode(-positions)
-        mvs = geometric_product(
-            geometric_product(translation, mvs), inverse_translation
-        )
+        # Check whether distance is a scalar or a vector
+        if distance.dim() == 1:
+            # Directly assign distance to e_0
+            mvs[..., 1] = distance
+        else:
+            translation = Translation.encode(distance)
+            inverse_translation = Translation.encode(-distance)
+
+            # From page 55 of PGA4CS, "In the sandwiching with this element T_t (the translator), any element translates over t"
+            mvs = geometric_product(
+                geometric_product(translation, mvs), inverse_translation
+            )
 
         return mvs
 
     @staticmethod
     def decode(mvs):
+        # TODO: Need to figure out a way to extract both direction and distance from the multivector
         pass
 
 
@@ -191,5 +200,32 @@ class Translation:
         return mvs
 
     @staticmethod
-    def decode(mvs):
-        pass
+    def decode(mvs, divide_by_embedding_dim=False, threshold: float = 1e-3):
+        """Decode translation from PGA.
+
+        Parameters
+        ----------
+        mvs : torch.Tensor
+            Multivector with shape (..., 16).
+        divide_by_embedding_dim : bool
+            Whether to divice by the embedding dim. Proper PGA etiquette would have us do this, but it
+            may not be good for NN training.
+        threshold : float
+            Minimum value of the additional, unphysical component. Necessary to avoid exploding values
+            or NaNs when this unphysical component of the homogeneous coordinates becomes small.
+
+        Returns
+        -------
+        torch.Tensor
+            3D components of the translation vector.
+        """
+        delta = -2.0 * mvs[..., 5:8]
+
+        if divide_by_embedding_dim:
+            # The scalar part of a translation versor is always equal to 1 (page 85 of PGA4CS)
+            embedding_dim = mvs[..., [0]]
+            # Avoid division by zero, exploding values or NaNs
+            embedding_dim = torch.where(torch.abs(embedding_dim) > threshold, embedding_dim, threshold)
+            delta = delta / embedding_dim
+
+        return delta
