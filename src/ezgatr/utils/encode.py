@@ -51,11 +51,38 @@ class Point:
 
 class Plane:
     """Interface for oriented plane to and from PGA
+
+    Indices 2, 3, 4 are vectors with basis e_1, e_2, e_3
+    Vectors with basis e_1, e_2, e_3 are planes, which are represented as direction (e_1, e_2, e_3) and distance (e_0) in PGA
     """
 
     @staticmethod
     def encode(normals, positions):
-        pass
+        """Encode oriented planes to PGA.
+
+        Parameters
+        ----------
+        normals : torch.Tensor
+            Normal vectors of the planes with shape (..., 3).
+        positions : torch.Tensor
+            One position on the planes with shape (..., 3).
+
+        Returns
+        -------
+        torch.Tensor
+            PGA representation of the planes with shape (..., 16).
+        """
+        mvs = torch.zeros(*normals.shape[:-1], 16, dtype=normals.dtype, device=normals.device)
+
+        mvs[..., 2:5] = normals[..., :]
+
+        translation = Translation.encode(positions)
+        inverse_translation = Translation.encode(-positions)
+        mvs = geometric_product(
+            geometric_product(translation, mvs), inverse_translation
+        )
+
+        return mvs
 
     @staticmethod
     def decode(mvs):
@@ -129,11 +156,39 @@ class Rotation:
 
 
 class Translation:
-    """Interface for translation to and from PGA"""
+    """Interface for translation to and from PGA
+
+    The equation can be found on page 55 of PGA4CS (equation 82)
+    The translator is defined as T_t = 1 + e_0 t / 2 (e_0 corresponds to e in the book as it is the basis for distance)
+    t is define as 2(\delta_2 - \delta_1)n, where n is a unit normal vector
+    Therefore, the outputted multivector should be bivector with basis e_{0i}, which corresponds to indices 5, 6, 7
+    """
 
     @staticmethod
-    def encode(directions):
-        pass
+    def encode(delta):
+        """Encode translation to PGA.
+
+        Parameters
+        ----------
+        delta : torch.Tensor
+            Translation amount with shape (..., 3).
+
+        Returns
+        -------
+        torch.Tensor
+            PGA representation of the translator with shape (..., 16).
+        """
+
+        mvs = torch.zeros(
+            *delta.shape[:-1], 16, dtype=delta.dtype, device=delta.device
+        )
+
+        mvs[..., 0] = 1.0
+        mvs[..., 5:8] = (
+            -0.5 * delta[..., :]
+        )
+
+        return mvs
 
     @staticmethod
     def decode(mvs):
