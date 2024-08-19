@@ -7,7 +7,7 @@ class Point:
     """Interface for 3D Euclidean point to and from PGA representation.
 
     In PGA [1]_, a point is represented as the intersection of three planes,
-    and represented with tri-vectors `e0ij`.
+    and represented with tri-vectors `e_{0ij}`.
 
     TODO: WE MAY WANT TO ADD MORE EXPLANATION OF WHY THERE ARE SIGN FLIPS IN THE
     ENCODING AND DECODING FUNCTIONS.
@@ -52,8 +52,9 @@ class Point:
 class Plane:
     """Interface for oriented plane to and from PGA
 
-    Indices 2, 3, 4 are vectors with basis e_1, e_2, e_3
-    Vectors with basis e_1, e_2, e_3 are planes, which are represented as direction (e_1, e_2, e_3) and distance (e_0) in PGA
+    Indices 2, 3, 4 are vectors with basis `e_1, e_2, e_3`. Vectors
+    with basis `e_1, e_2, e_3` are planes, which are represented
+    as direction `(e_1, e_2, e_3)` and distance `(e_0)` in PGA.
     """
 
     @staticmethod
@@ -73,22 +74,26 @@ class Plane:
         torch.Tensor
             PGA representation of the planes with shape (..., 16).
         """
-        mvs = torch.zeros(*normals.shape[:-1], 16, dtype=normals.dtype, device=normals.device)
+        mvs = torch.zeros(
+            *normals.shape[:-1], 16, dtype=normals.dtype, device=normals.device
+        )
 
         mvs[..., 2:5] = normals[..., :]
 
         # Check whether distance is a scalar or a vector
         if distance.dim() == 1:
-            # Directly assign distance to e_0
             mvs[..., 1] = distance
-        else:
-            translation = Translation.encode(distance)
-            inverse_translation = Translation.encode(-distance)
+            return mvs
 
-            # From page 55 of PGA4CS, "In the sandwiching with this element T_t (the translator), any element translates over t"
-            mvs = geometric_product(
-                geometric_product(translation, mvs), inverse_translation
-            )
+        translation = Translation.encode(distance)
+        inverse_translation = Translation.encode(-distance)
+
+        # From page 55 of PGA4CS,
+        #   "In the sandwiching with this element T_t (the translator),
+        #   any element translates over t"
+        mvs = geometric_product(
+            geometric_product(translation, mvs), inverse_translation
+        )
 
         return mvs
 
@@ -165,12 +170,19 @@ class Rotation:
 
 
 class Translation:
-    """Interface for translation to and from PGA
+    """Interface for translation to and from PGA.
 
-    The equation can be found on page 55 of PGA4CS (equation 82)
-    The translator is defined as T_t = 1 + e_0 t / 2 (e_0 corresponds to e in the book as it is the basis for distance)
-    t is define as 2(\delta_2 - \delta_1)n, where n is a unit normal vector
-    Therefore, the outputted multivector should be bivector with basis e_{0i}, which corresponds to indices 5, 6, 7
+    The equation can be found on page 55 of PGA4CS (equation 82) where translator
+    is defined as,
+
+    ```
+    T_t = 1 + e_0 t / 2
+    ```
+
+    where `t` is define as `2(\delta_2 - \delta_1)n`, `e_0` corresponds to `e`
+    in the textbook as it is the basis for distance, and `n` is a unit normal
+    vector. Therefore, the outputted multivector should be bivector with basis
+    `e_{0i}`, which corresponds to indices 5, 6, 7.
     """
 
     @staticmethod
@@ -187,15 +199,10 @@ class Translation:
         torch.Tensor
             PGA representation of the translator with shape (..., 16).
         """
-
-        mvs = torch.zeros(
-            *delta.shape[:-1], 16, dtype=delta.dtype, device=delta.device
-        )
+        mvs = torch.zeros(*delta.shape[:-1], 16, dtype=delta.dtype, device=delta.device)
 
         mvs[..., 0] = 1.0
-        mvs[..., 5:8] = (
-            -0.5 * delta[..., :]
-        )
+        mvs[..., 5:8] = -0.5 * delta[..., :]
 
         return mvs
 
@@ -208,11 +215,12 @@ class Translation:
         mvs : torch.Tensor
             Multivector with shape (..., 16).
         divide_by_embedding_dim : bool
-            Whether to divice by the embedding dim. Proper PGA etiquette would have us do this, but it
-            may not be good for NN training.
+            Whether to divide by the embedding dim. Proper PGA etiquette would have us
+            do this, but it may not be good for NN training.
         threshold : float
-            Minimum value of the additional, unphysical component. Necessary to avoid exploding values
-            or NaNs when this unphysical component of the homogeneous coordinates becomes small.
+            Minimum value of the additional, un-physical component. Necessary to avoid
+            exploding values or NaNs when this un-physical component of the homogeneous
+            coordinates becomes small.
 
         Returns
         -------
@@ -222,10 +230,14 @@ class Translation:
         delta = -2.0 * mvs[..., 5:8]
 
         if divide_by_embedding_dim:
+
             # The scalar part of a translation versor is always equal to 1 (page 85 of PGA4CS)
             embedding_dim = mvs[..., [0]]
+
             # Avoid division by zero, exploding values or NaNs
-            embedding_dim = torch.where(torch.abs(embedding_dim) > threshold, embedding_dim, threshold)
+            embedding_dim = torch.where(
+                torch.abs(embedding_dim) > threshold, embedding_dim, threshold
+            )
             delta = delta / embedding_dim
 
         return delta
