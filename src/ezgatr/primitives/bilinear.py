@@ -60,8 +60,9 @@ def geometric_product(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
     The input tensors `x` and `y` are multi-vectors with shape (..., 16).
     where `...` dimensions can denote batches or batches plus channels. When
     channel dimensions are present, the geometric product is calculated
-    channel-wise. For instance, the first channel of `x` is multiplied with
-    the first channel of `y`, and so on.
+    channel-wise (and batch-wise). For instance, the first channel of `x[0]`
+    is multiplied with the first channel of `y[0]`, and so on. No channel-mixing
+    here.
 
     Parameters
     ----------
@@ -84,13 +85,20 @@ def outer_product(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
 
     The input tensors `x` and `y` are multi-vectors with shape (..., 16).
     where `...` dimensions can denote batches or batches plus channels. When
-    channel dimensions are present, the outer product is calculated channel-wise.
-    For instance, the first channel of `x` is multiplied with the first channel
-    of `y`, and so on.
+    channel dimensions are present, the outer product is calculated channel-wise
+    (and batch-wise). For instance, the first channel of `x[0]` is multiplied with
+    the first channel of `y[0]`, and so on. No channel-mixing here.
 
     Parameters
     ----------
     x : torch.Tensor
+        Multi-vectors with shape (..., 16).
+    y : torch.Tensor
+        Multi-vectors with shape (..., 16).
+
+    Returns
+    -------
+    torch.Tensor
         Multi-vectors with shape (..., 16).
     """
     basis = _load_bilinear_basis("op", x.device, x.dtype)
