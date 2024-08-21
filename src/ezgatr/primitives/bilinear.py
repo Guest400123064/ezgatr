@@ -109,7 +109,7 @@ _BASIS_FNAME: dict[str, str] = {
     "gp": os.path.join("basis", "geometric_product.pt"),
     "op": os.path.join("basis", "outer_product.pt"),
 }
-_BASIS_CACHE: dict[str, dict[torch.device, torch.Tensor]] = {
+_BASIS_CACHE: dict[str, dict[tuple[torch.device, torch.dtype], torch.Tensor]] = {
     "gp": {},
     "op": {},
 }
