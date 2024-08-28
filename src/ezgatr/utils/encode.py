@@ -58,10 +58,16 @@ class Point:
             unphysical component of the homogeneous coordinates becomes small.
 
         """
-        coordinates = torch.cat([-mvs[..., [13]], mvs[..., [12]], -mvs[..., [11]]], dim=-1)
+        coordinates = torch.cat(
+            [-mvs[..., [13]], mvs[..., [12]], -mvs[..., [11]]], dim=-1
+        )
 
-        embedding_dim = mvs[..., [14]]  # Embedding dimension / scale of homogeneous coordinates
-        embedding_dim = torch.where(torch.abs(embedding_dim) > threshold, embedding_dim, threshold)
+        embedding_dim = mvs[
+            ..., [14]
+        ]  # Embedding dimension / scale of homogeneous coordinates
+        embedding_dim = torch.where(
+            torch.abs(embedding_dim) > threshold, embedding_dim, threshold
+        )
         coordinates = coordinates / embedding_dim
 
         return coordinates
@@ -211,15 +217,24 @@ class Rotation:
             PGA representation of the rotation with shape (..., 16).
         """
         mvs = torch.zeros(
-            *quaternions.shape[:-1], 16, dtype=quaternions.dtype, device=quaternions.device
+            *quaternions.shape[:-1],
+            16,
+            dtype=quaternions.dtype,
+            device=quaternions.device
         )
 
         # Embedding into bivectors
         # w component of quaternion is the scalar component of the multivector
         mvs[..., 0] = quaternions[..., 3]
-        mvs[..., 8] = -quaternions[..., 2]  # k component of quaternion is the bivector -e12
-        mvs[..., 9] = quaternions[..., 1]  # j component of quaternion is the bivector e13
-        mvs[..., 10] = -quaternions[..., 0]  # i component of quaternion is the bivector -e23
+        mvs[..., 8] = -quaternions[
+            ..., 2
+        ]  # k component of quaternion is the bivector -e12
+        mvs[..., 9] = quaternions[
+            ..., 1
+        ]  # j component of quaternion is the bivector e13
+        mvs[..., 10] = -quaternions[
+            ..., 0
+        ]  # i component of quaternion is the bivector -e23
 
         return mvs
 
@@ -250,7 +265,9 @@ class Rotation:
         )
 
         if normalize:
-            quaternions = quaternions / torch.linalg.norm(quaternions, dim=-1, keepdim=True)
+            quaternions = quaternions / torch.linalg.norm(
+                quaternions, dim=-1, keepdim=True
+            )
 
         return quaternions
 
