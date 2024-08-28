@@ -9,8 +9,10 @@ class Point:
     In PGA [1]_, a point is represented as the intersection of three planes,
     and represented with tri-vectors `e_{0ij}`.
 
-    TODO: WE MAY WANT TO ADD MORE EXPLANATION OF WHY THERE ARE SIGN FLIPS IN THE
-    ENCODING AND DECODING FUNCTIONS.
+    The sign flip is because of the basis convention in GATr and point representation in PGA
+    According to https://bivector.net/3DPGA.pdf, the basis for x is e_{032}, y is e_{013}, and z is e_{021} for a given
+    point (x, y, z). However, in GATr, the basis for x is e_{023}, y is e_{013}, and z is e_{012} as mentioned in the
+    paper (e_{0ij)}
 
     Reference
     ---------
@@ -44,8 +46,15 @@ class Point:
         return mvs
 
     @staticmethod
-    def decode(mvs):
-        """ """
+    def decode(mvs, threshold: float = 1e-3):
+        """
+
+        """
+        coordinates = torch.cat([-mvs[..., [13]], mvs[..., [12]], -mvs[..., [11]]], dim=-1)
+
+        embedding_dim = mvs[..., [14]]  # Embedding dimension / scale of homogeneous coordinates
+        embedding_dim = torch.where(torch.abs(embedding_dim) > threshold, embedding_dim, threshold)
+        coordinates = coordinates / embedding_dim
         pass
 
 
