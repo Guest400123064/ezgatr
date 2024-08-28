@@ -44,12 +44,13 @@ def _load_bilinear_basis(
     if basis is not None:
         return basis
 
-    prototype = cache.get((torch.device("cpu"), torch.float32))
-    if prototype is not None:
-        cache[(device, dtype)] = prototype.detach().to(device, dtype)
-    else:
-        basis_path = pathlib.Path(__file__).parent.resolve() / _BASIS_FNAME[kind]
-        cache[(torch.device("cpu"), torch.float32)] = torch.load(basis_path)
+    proto_key = (torch.device("cpu"), torch.float32)
+    try:
+        cache[(device, dtype)] = cache[proto_key].detach().to(device, dtype)
+    except KeyError as _:
+        cache[proto_key] = torch.load(
+            pathlib.Path(__file__).parent.resolve() / _BASIS_FNAME[kind]
+        )
 
     return _load_bilinear_basis(kind, device, dtype)
 
