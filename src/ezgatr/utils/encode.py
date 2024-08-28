@@ -126,13 +126,17 @@ class Plane:
 
         Returns
         -------
-        torch.Tensor
-            Normal to the plane with shape (..., 3).
+        normals : torch.Tensor
+            Normal vectors of the planes with shape (..., 3).
+        distance : torch.Tensor
+            The distance along the normal vector with shape (..., 1).
 
         """
         normal = mvs[..., 2:5]
 
-        return normal
+        distance = mvs[..., 1]
+
+        return normal, distance
 
 
 class Scalar:
