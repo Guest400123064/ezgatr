@@ -47,7 +47,7 @@ def _load_bilinear_basis(
     proto_key = (torch.device("cpu"), torch.float32)
     try:
         cache[(device, dtype)] = cache[proto_key].detach().to(device, dtype)
-    except KeyError as _:
+    except KeyError:
         cache[proto_key] = torch.load(
             pathlib.Path(__file__).parent.resolve() / _BASIS_FNAME[kind]
         )
