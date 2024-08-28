@@ -47,7 +47,15 @@ class Point:
 
     @staticmethod
     def decode(mvs, threshold: float = 1e-3):
-        """
+        """Decode 3D Euclidean points from PGA.
+
+        Parameters
+        ----------
+        mvs : torch.Tensor
+            Multivector with shape (..., 16).
+        threshold : float
+            Minimum value of the additional, unphysical component. Necessary to avoid exploding values or NaNs when this
+            unphysical component of the homogeneous coordinates becomes small.
 
         """
         coordinates = torch.cat([-mvs[..., [13]], mvs[..., [12]], -mvs[..., [11]]], dim=-1)
@@ -55,7 +63,8 @@ class Point:
         embedding_dim = mvs[..., [14]]  # Embedding dimension / scale of homogeneous coordinates
         embedding_dim = torch.where(torch.abs(embedding_dim) > threshold, embedding_dim, threshold)
         coordinates = coordinates / embedding_dim
-        pass
+
+        return coordinates
 
 
 class Plane:
@@ -108,8 +117,22 @@ class Plane:
 
     @staticmethod
     def decode(mvs):
-        # TODO: Need to figure out a way to extract both direction and distance from the multivector
-        pass
+        """Decode oriented planes from PGA.
+
+        Parameters
+        ----------
+        mvs : torch.Tensor
+            Multivector with shape (..., 16).
+
+        Returns
+        -------
+        torch.Tensor
+            Normal to the plane with shape (..., 3).
+
+        """
+        normal = mvs[..., 2:5]
+
+        return normal
 
 
 class Scalar:
@@ -171,11 +194,61 @@ class Rotation:
 
     @staticmethod
     def encode(quaternions):
-        pass
+        """Encode rotation to PGA.
+
+        Parameters
+        ----------
+        quaternions : torch.Tensor
+            Quaternions with shape (..., 4).
+
+        Returns
+        -------
+        torch.Tensor
+            PGA representation of the rotation with shape (..., 16).
+        """
+        mvs = torch.zeros(
+            *quaternions.shape[:-1], 16, dtype=quaternions.dtype, device=quaternions.device
+        )
+
+        # Embedding into bivectors
+        # w component of quaternion is the scalar component of the multivector
+        mvs[..., 0] = quaternions[..., 3]
+        mvs[..., 8] = -quaternions[..., 2]  # k component of quaternion is the bivector -e12
+        mvs[..., 9] = quaternions[..., 1]  # j component of quaternion is the bivector e13
+        mvs[..., 10] = -quaternions[..., 0]  # i component of quaternion is the bivector -e23
+
+        return mvs
 
     @staticmethod
-    def decode(mvs):
-        pass
+    def decode(mvs, normalize: bool = False):
+        """Decode rotation from PGA.
+
+        Parameters
+        ----------
+        mvs : torch.Tensor
+            Multivector with shape (..., 16).
+        normalize : bool
+            Whether to normalize the quaternion to unit norm.
+
+        Returns
+        -------
+        torch.Tensor
+            Quaternions with shape (..., 4).
+        """
+        quaternions = torch.cat(
+            [
+                -mvs[..., [10]],
+                mvs[..., [9]],
+                -mvs[..., [8]],
+                mvs[..., [0]],
+            ],
+            dim=-1,
+        )
+
+        if normalize:
+            quaternions = quaternions / torch.linalg.norm(quaternions, dim=-1, keepdim=True)
+
+        return quaternions
 
 
 class Translation:
@@ -214,39 +287,3 @@ class Translation:
         mvs[..., 5:8] = -0.5 * delta[..., :]
 
         return mvs
-
-    @staticmethod
-    def decode(mvs, divide_by_embedding_dim=False, threshold: float = 1e-3):
-        """Decode translation from PGA.
-
-        Parameters
-        ----------
-        mvs : torch.Tensor
-            Multivector with shape (..., 16).
-        divide_by_embedding_dim : bool
-            Whether to divide by the embedding dim. Proper PGA etiquette would have us
-            do this, but it may not be good for NN training.
-        threshold : float
-            Minimum value of the additional, un-physical component. Necessary to avoid
-            exploding values or NaNs when this un-physical component of the homogeneous
-            coordinates becomes small.
-
-        Returns
-        -------
-        torch.Tensor
-            3D components of the translation vector.
-        """
-        delta = -2.0 * mvs[..., 5:8]
-
-        if divide_by_embedding_dim:
-
-            # The scalar part of a translation versor is always equal to 1 (page 85 of PGA4CS)
-            embedding_dim = mvs[..., [0]]
-
-            # Avoid division by zero, exploding values or NaNs
-            embedding_dim = torch.where(
-                torch.abs(embedding_dim) > threshold, embedding_dim, threshold
-            )
-            delta = delta / embedding_dim
-
-        return delta
