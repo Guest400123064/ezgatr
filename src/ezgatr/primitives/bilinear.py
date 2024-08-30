@@ -4,6 +4,15 @@ from typing import Literal
 
 import torch
 
+_BASIS_FNAME: dict[str, str] = {
+    "gp": os.path.join("basis", "geometric_product.pt"),
+    "op": os.path.join("basis", "outer_product.pt"),
+}
+_BASIS_CACHE: dict[str, dict[tuple[torch.device, torch.dtype], torch.Tensor]] = {
+    "gp": {},
+    "op": {},
+}
+
 
 def _load_bilinear_basis(
     kind: Literal["gp", "op"], device: torch.device, dtype: torch.dtype
@@ -104,13 +113,3 @@ def outer_product(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
     """
     basis = _load_bilinear_basis("op", x.device, x.dtype)
     return torch.einsum("ijk, ...j, ...k -> ...i", basis, x, y)
-
-
-_BASIS_FNAME: dict[str, str] = {
-    "gp": os.path.join("basis", "geometric_product.pt"),
-    "op": os.path.join("basis", "outer_product.pt"),
-}
-_BASIS_CACHE: dict[str, dict[tuple[torch.device, torch.dtype], torch.Tensor]] = {
-    "gp": {},
-    "op": {},
-}
