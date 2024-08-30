@@ -1,6 +1,6 @@
+import functools
 import os
 import pathlib
-import functools
 from typing import Literal
 
 import torch

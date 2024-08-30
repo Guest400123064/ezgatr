@@ -7,9 +7,8 @@ import torch
 def _compute_pin_equi_linear_basis(
     device: torch.device, dtype: torch.dtype, normalize: bool = True
 ) -> torch.Tensor:
-    """Constructs basis elements for Pin(3,0,1)-equivariant linear maps between multi-vectors.
-
-    This function is cached.
+    """Constructs basis elements for Pin(3, 0, 1)-equivariant linear maps
+    between multi-vectors.
 
     Parameters
     ----------
@@ -37,8 +36,8 @@ def _compute_pin_equi_linear_basis(
         [(11, 8), (12, 9), (13, 10)],
         [(15, 14)],
     ]
-    basis = []
 
+    basis = []
     for elements in basis_elements:
         w = torch.zeros((16, 16))
         for element in elements:
@@ -58,16 +57,33 @@ def _compute_pin_equi_linear_basis(
 
 
 def equi_linear(x: torch.Tensor, weights: torch.Tensor) -> torch.Tensor:
-    """Pin-equivariant linear map f(x) = sum_{a,j} weights_a W^a_ij x_j.
+    """Perform Pin-equivariant linear map defined by weights on input x.
 
-    The W^a are 9 pre-defined basis elements.
+    One way to think of the equivariant linear map is a channel-wise
+    "map-reduce", where the same weights (of one neuron) are applied to
+    all channels of the input multi-vector and the results are summed up
+    along the basis/blade axis. In other words, the map is a channel-mixing
+    operation. Using a parallel analogy with a regular ``nn.Linear`` layer,
+    each channel of a input multi-vector corresponds to a "feature value"
+    of a simple hidden representation, and the number of output channels
+    is the number of neurons in the hidden layer.
+
+    Within each channel, similar to the geometric product implementation,
+    the linear operation starts with a matrix multiplication between the
+    (weighted, if normalized) 16-by-16 computation graph, i.e., the basis,
+    and the input multi-vector to take into account the effect that blades
+    containing ``e_0`` will be "downgraded" to a lower grade after the map.
+    Again, a map from "source-to-destination" style. Note that we may want
+    to optimize this operation as the basis is pretty sparse.
 
     Parameters
     ----------
     x : torch.Tensor with shape (..., in_channels, 16)
-        Input multivector. Batch dimensions must be broadcastable between x and weights.
+        Input multivector. Batch dimensions must be broadcastable between
+        x and weights.
     weights : torch.Tensor with shape (out_channels, in_channels, 9)
-        Coefficients for the 9 basis elements. Batch dimensions must be broadcastable between x and weights.
+        Coefficients for the 9 basis elements. Batch dimensions must be
+        broadcastable between x and weights.
 
     Returns
     -------
@@ -75,4 +91,4 @@ def equi_linear(x: torch.Tensor, weights: torch.Tensor) -> torch.Tensor:
         Result. Batch dimensions are result of broadcasting between x and weights.
     """
     basis = _compute_pin_equi_linear_basis(x.device, x.dtype)
-    return torch.einsum("yxa, aij, ...xj -> ...yi", weights, basis, x)
+    return torch.einsum("oiw, wds, ...is -> ...od", weights, basis, x)
