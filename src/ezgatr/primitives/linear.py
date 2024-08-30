@@ -88,7 +88,8 @@ def equi_linear(x: torch.Tensor, weights: torch.Tensor) -> torch.Tensor:
     Returns
     -------
     outputs : torch.Tensor with shape (..., 16)
-        Result. Batch dimensions are result of broadcasting between x and weights.
+        Result. Batch dimensions are result of broadcasting between x
+        and weights.
     """
     basis = _compute_pin_equi_linear_basis(x.device, x.dtype)
     return torch.einsum("oiw, wds, ...is -> ...od", weights, basis, x)
