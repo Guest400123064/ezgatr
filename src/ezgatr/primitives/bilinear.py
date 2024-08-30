@@ -158,19 +158,3 @@ def inner_product(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
         torch.index_select(x, -1, selector),
         torch.index_select(y, -1, selector),
     ).unsqueeze(-1)
-
-
-def time_exec(f):
-    res = []
-    for _ in range(1_000):
-        s = torch.cuda.Event(enable_timing=True)
-        e = torch.cuda.Event(enable_timing=True)
-        
-        s.record()
-        f()
-        e.record()
-        
-        torch.cuda.synchronize()
-        res.append(s.elapsed_time(e))
-
-    print(sum(res))
