@@ -22,8 +22,8 @@ def _compute_pin_equi_linear_basis(
 
     Returns
     -------
-    basis : torch.Tensor with shape (9, 16, 16)
-        Basis elements for equivariant linear maps.
+    torch.Tensor
+        Basis with shape (9, 16, 16) for equivariant linear maps.
     """
     basis_elements = [
         [0],
@@ -87,9 +87,8 @@ def equi_linear(x: torch.Tensor, weights: torch.Tensor) -> torch.Tensor:
 
     Returns
     -------
-    outputs : torch.Tensor with shape (..., 16)
-        Result. Batch dimensions are result of broadcasting between x
-        and weights.
+    torch.Tensor
+        Output with shape (..., out_channels, 16).
     """
     basis = _compute_pin_equi_linear_basis(x.device, x.dtype)
     return torch.einsum("oiw, wds, ...is -> ...od", weights, basis, x)

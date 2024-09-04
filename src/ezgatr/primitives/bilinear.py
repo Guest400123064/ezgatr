@@ -153,7 +153,7 @@ def inner_product(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
     Returns
     -------
     torch.Tensor
-        Inner product of the multi-vectors with shape (..., 1).
+        Inner product results of the multi-vectors with shape (..., 1).
     """
     selector = _compute_inner_product_selector(x.device)
     return torch.einsum(
