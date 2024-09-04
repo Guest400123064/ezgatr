@@ -90,8 +90,8 @@ def geometric_product(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
     """Geometric product between two batches of multi-vectors.
 
     The input tensors ``x`` and ``y`` are multi-vectors with shape (..., 16).
-    where ``...`` dimensions can denote batches or batches plus channels. When
-    channel dimensions are present, the geometric product is calculated
+    where ``...`` dimensions can denote batches or batches plus channels.
+    When channel dimensions are present, the geometric product is calculated
     channel-wise (and batch-wise). For instance, the first channel of ``x[0]``
     is multiplied with the first channel of ``y[0]``, and so on. No channel-mixing
     here.
@@ -118,8 +118,8 @@ def outer_product(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
     The input tensors ``x`` and ``y`` are multi-vectors with shape (..., 16).
     where ``...`` dimensions can denote batches or batches plus channels. When
     channel dimensions are present, the outer product is calculated channel-wise
-    (and batch-wise). For instance, the first channel of ``x[0]`` is multiplied with
-    the first channel of ``y[0]``, and so on. No channel-mixing here.
+    (and batch-wise). For instance, the first channel of ``x[0]`` is multiplied
+    with the first channel of ``y[0]``, and so on. No channel-mixing here.
 
     Parameters
     ----------
@@ -139,6 +139,9 @@ def outer_product(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
 
 def inner_product(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
     """Compute the PGA inner product between two multi-vectors.
+
+    Similarly, the PGA inner product is calculated channel-wise (and batch-wise).
+    No channel-mixing here.
 
     Parameters
     ----------
