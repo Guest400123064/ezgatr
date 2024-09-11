@@ -9,13 +9,32 @@ from ezgatr.primitives.bilinear import geometric_product
 def _compute_dualization(
     device: torch.device, dtype: torch.dtype
 ) -> tuple[torch.Tensor, torch.Tensor]:
-    """Compute the
+    """Compute the reversion index and sign flip for dualization."""
 
-    """
+    perm = torch.tensor(range(15, -1, -1), device=device)
+    sign = torch.tensor(
+        [1, -1, 1, -1, 1, 1, -1, 1, 1, -1, 1, -1, 1, -1, 1, 1],
+        device=device,
+        dtype=dtype,
+    )
+    return perm, sign
 
 
 def dual(x: torch.Tensor) -> torch.Tensor:
-    pass
+    """Compute the dual of the input multi-vector.
+
+    Parameters
+    ----------
+    x : torch.Tensor
+        Multi-vectors with shape (..., 16).
+
+    Returns
+    -------
+    torch.Tensor
+        Corresponding dual with shape (..., 16).
+    """
+    perm, sign = _compute_dualization(x.device, x.dtype)
+    return sign * torch.index_select(x, -1, perm)
 
 
 def equi_join(
