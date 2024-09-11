@@ -2,7 +2,7 @@ import functools
 
 import torch
 
-from ezgatr.primitives.bilinear import geometric_product
+from ezgatr.primitives.bilinear import outer_product
 
 
 @functools.lru_cache(maxsize=None, typed=True)
@@ -38,9 +38,11 @@ def dual(x: torch.Tensor) -> torch.Tensor:
 
 
 def equi_join(
-    x: torch.Tensor, y: torch.Tensor, reference: torch.Tensor
+    x: torch.Tensor, y: torch.Tensor, reference: torch.Tensor = None
 ) -> torch.Tensor:
     """Compute the equivariant join of two multi-vectors given the reference.
+
+    TODO: CURRENT IMPLEMENTATION IS NOT EFFICIENT.
 
     Parameters
     ----------
@@ -48,7 +50,7 @@ def equi_join(
         Multi-vectors with shape (..., 16).
     y : torch.Tensor
         Multi-vectors with shape (..., 16).
-    reference : torch.Tensor
+    reference : torch.Tensor, default to None
         Multi-vectors with shape (..., 16).
 
     Returns
@@ -56,3 +58,8 @@ def equi_join(
     torch.Tensor
         Equivariant join result multi-vectors with shape (..., 16).
     """
+    ret = dual(outer_product(dual(x), dual(y)))
+
+    if reference is not None:
+        ret *= reference[..., [14]]
+    return ret
