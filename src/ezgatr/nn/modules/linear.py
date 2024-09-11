@@ -19,7 +19,9 @@ class EquiLinear(nn.Module):
         Whether to normalize the basis elements according to the number of
         "inflow paths" for each blade.
     """
+
     __constants__ = ["in_channels", "out_channels", "normalize_basis"]
+
     in_channels: int
     out_channels: int
     normalize_basis: bool
@@ -40,7 +42,7 @@ class EquiLinear(nn.Module):
         self.out_channels = out_channels
         self.normalize_basis = normalize_basis
         self.weight = nn.Parameter(
-            torch.empty((out_channels, in_channels), **factory_kwargs)
+            torch.empty((out_channels, in_channels, 9), **factory_kwargs)
         )
         self.reset_parameters()
 
