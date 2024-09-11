@@ -2,7 +2,7 @@ import functools
 
 import torch
 
-from ezgatr.primitives.bilinear import outer_product
+from ezgatr.nn.functional.bilinear import outer_product
 
 
 @functools.lru_cache(maxsize=None, typed=True)
