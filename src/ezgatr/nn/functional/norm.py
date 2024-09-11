@@ -3,7 +3,7 @@ import torch
 from ezgatr.primitives.bilinear import inner_product
 
 
-def equi_rms_norm(x: torch.Tensor, weights: torch.Tensor, eps: float) -> torch.Tensor:
+def equi_rms_norm(x: torch.Tensor, weight: torch.Tensor, eps: float) -> torch.Tensor:
     """Compute PGA inner-induced RMS norm of multi-vectors.
 
     Although the original GATr paper [2]_ named the normalization operation
@@ -26,9 +26,9 @@ def equi_rms_norm(x: torch.Tensor, weights: torch.Tensor, eps: float) -> torch.T
     ----------
     x : torch.Tensor
         Input multi-vectors with shape (..., n_channels, 16).
-    weights : torch.Tensor
-        Weights for re-scaling the normalized input. It can be both
-        static or learnable, depending on how ``weights`` are initialized
+    weight : torch.Tensor
+        weight for re-scaling the normalized input. It can be both
+        static or learnable, depending on how ``weight`` are initialized
         outside of the function.
     eps : float
         Small value to prevent division by zero.
@@ -46,4 +46,4 @@ def equi_rms_norm(x: torch.Tensor, weights: torch.Tensor, eps: float) -> torch.T
             <https://ar5iv.labs.arxiv.org/html/2305.18415>`_
     """
     norm = torch.mean(inner_product(x, x), dim=-2, keepdim=True)
-    return weights * x / torch.sqrt(torch.clamp(norm, min=eps))
+    return weight * x / torch.sqrt(torch.clamp(norm, min=eps))

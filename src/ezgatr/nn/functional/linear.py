@@ -56,11 +56,13 @@ def _compute_pin_equi_linear_basis(
     return torch.cat(basis, dim=0).to(device, dtype)
 
 
-def equi_linear(x: torch.Tensor, weights: torch.Tensor) -> torch.Tensor:
-    """Perform Pin-equivariant linear map defined by weights on input x.
+def equi_linear(
+    x: torch.Tensor, weight: torch.Tensor, normalize_basis: bool = True
+) -> torch.Tensor:
+    """Perform Pin-equivariant linear map defined by weight on input x.
 
     One way to think of the equivariant linear map is a channel-wise
-    "map-reduce", where the same weights (of one neuron) are applied to
+    "map-reduce", where the same weight (of one neuron) are applied to
     all channels of the input multi-vector and the results are summed up
     along the basis/blade axis. In other words, the map is a channel-mixing
     operation. Using a parallel analogy with a regular ``nn.Linear`` layer,
@@ -80,15 +82,18 @@ def equi_linear(x: torch.Tensor, weights: torch.Tensor) -> torch.Tensor:
     ----------
     x : torch.Tensor with shape (..., in_channels, 16)
         Input multivector. Batch dimensions must be broadcastable between
-        x and weights.
-    weights : torch.Tensor with shape (out_channels, in_channels, 9)
+        x and weight.
+    weight : torch.Tensor with shape (out_channels, in_channels, 9)
         Coefficients for the 9 basis elements. Batch dimensions must be
-        broadcastable between x and weights.
+        broadcastable between x and weight.
+    normalize_basis : bool
+        Whether to normalize the basis elements according to
+        the number of "inflow paths" of each blade.
 
     Returns
     -------
     torch.Tensor
         Output with shape (..., out_channels, 16).
     """
-    basis = _compute_pin_equi_linear_basis(x.device, x.dtype)
-    return torch.einsum("oiw, wds, ...is -> ...od", weights, basis, x)
+    basis = _compute_pin_equi_linear_basis(x.device, x.dtype, normalize_basis)
+    return torch.einsum("oiw, wds, ...is -> ...od", weight, basis, x)
