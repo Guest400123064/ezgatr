@@ -5,6 +5,15 @@ import torch
 from ezgatr.primitives.bilinear import geometric_product
 
 
+@functools.lru_cache(maxsize=None, typed=True)
+def _compute_dualization(
+    device: torch.device, dtype: torch.dtype
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """Compute the
+
+    """
+
+
 def dual(x: torch.Tensor) -> torch.Tensor:
     pass
 
