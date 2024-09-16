@@ -24,9 +24,9 @@ class EquiLinear(nn.Module):
 
     in_channels: int
     out_channels: int
-    bias: bool
     normalize_basis: bool
     weight: torch.Tensor
+    bias: torch.Tensor
 
     def __init__(
         self,
