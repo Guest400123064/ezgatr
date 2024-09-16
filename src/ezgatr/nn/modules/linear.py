@@ -1,4 +1,5 @@
 import math
+from typing import Optional
 
 import torch
 import torch.nn as nn
@@ -26,7 +27,7 @@ class EquiLinear(nn.Module):
     out_channels: int
     normalize_basis: bool
     weight: torch.Tensor
-    bias: torch.Tensor
+    bias: Optional[torch.Tensor]
 
     def __init__(
         self,
@@ -67,3 +68,15 @@ class EquiLinear(nn.Module):
             f"in_channels={self.in_channels}, out_channels={self.out_channels}, "
             f"bias={self.bias is not None}, normalize_basis={self.normalize_basis}"
         )
+
+
+class GeometricBilinear(nn.Module):
+    """
+    """
+
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+    ) -> None:
+        pass

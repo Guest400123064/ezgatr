@@ -1,9 +1,11 @@
 import torch
 
-from ezgatr.nn.functional.bilinear import inner_product
+from ezgatr.nn.functional.linear import inner_product
 
 
-def equi_rms_norm(x: torch.Tensor, weight: torch.Tensor, eps: float) -> torch.Tensor:
+def equi_rms_norm(
+    x: torch.Tensor, weight: torch.Tensor = None, eps: float = None
+) -> torch.Tensor:
     """Compute PGA inner-induced RMS norm of multi-vectors.
 
     Although the original GATr paper [2]_ named the normalization operation
@@ -45,5 +47,10 @@ def equi_rms_norm(x: torch.Tensor, weight: torch.Tensor, eps: float) -> torch.Te
     .. [2] `"Geometric Algebra Transformer", Johann Brehmer, et al.,
             <https://ar5iv.labs.arxiv.org/html/2305.18415>`_
     """
+    eps = eps or torch.finfo(x.dtype).eps
     norm = torch.mean(inner_product(x, x), dim=-2, keepdim=True)
-    return weight * x / torch.sqrt(torch.clamp(norm, min=eps))
+
+    x = x / torch.sqrt(torch.clamp(norm, min=eps))
+    if weight is not None:
+        x = x * weight.view(-1, 1)
+    return x
