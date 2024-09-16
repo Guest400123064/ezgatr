@@ -1,6 +1,6 @@
 import torch
 
-from ezgatr.primitives.bilinear import inner_product
+from ezgatr.nn.functional.bilinear import inner_product
 
 
 def equi_rms_norm(x: torch.Tensor, weight: torch.Tensor, eps: float) -> torch.Tensor:
