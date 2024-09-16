@@ -1,10 +1,9 @@
+import functools
 import os
 import pathlib
-import functools
 from typing import Literal
 
 import torch
-
 
 _BASIS_FNAME: dict[str, str] = {
     "gp": os.path.join("basis", "geometric_product.pt"),

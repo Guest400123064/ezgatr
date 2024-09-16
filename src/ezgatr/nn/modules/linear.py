@@ -68,15 +68,3 @@ class EquiLinear(nn.Module):
             f"in_channels={self.in_channels}, out_channels={self.out_channels}, "
             f"bias={self.bias is not None}, normalize_basis={self.normalize_basis}"
         )
-
-
-class GeometricBilinear(nn.Module):
-    """
-    """
-
-    def __init__(
-        self,
-        in_channels: int,
-        out_channels: int,
-    ) -> None:
-        pass
