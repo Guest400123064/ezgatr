@@ -57,7 +57,7 @@ def _compute_pin_equi_linear_basis(
 
 
 def equi_linear(
-    x: torch.Tensor, weight: torch.Tensor, normalize_basis: bool = True
+    x: torch.Tensor, weight: torch.Tensor, bias: torch.Tensor = None, normalize_basis: bool = True
 ) -> torch.Tensor:
     """Perform Pin-equivariant linear map defined by weight on input x.
 
@@ -86,6 +86,9 @@ def equi_linear(
     weight : torch.Tensor with shape (out_channels, in_channels, 9)
         Coefficients for the 9 basis elements. Batch dimensions must be
         broadcastable between x and weight.
+    bias : torch.Tensor with shape (out_channels,)
+        Bias for the linear map. The bias values are only added to the
+        scalar blades (i.e., index position 0) of each output channel.
     normalize_basis : bool
         Whether to normalize the basis elements according to
         the number of "inflow paths" of each blade.
@@ -96,4 +99,8 @@ def equi_linear(
         Output with shape (..., out_channels, 16).
     """
     basis = _compute_pin_equi_linear_basis(x.device, x.dtype, normalize_basis)
-    return torch.einsum("oiw, wds, ...is -> ...od", weight, basis, x)
+
+    x = torch.einsum("oiw, wds, ...is -> ...od", weight, basis, x)
+    if bias is not None:
+        x[..., [0]] += bias.view(-1, 1)
+    return x

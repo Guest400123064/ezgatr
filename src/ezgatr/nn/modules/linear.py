@@ -24,6 +24,7 @@ class EquiLinear(nn.Module):
 
     in_channels: int
     out_channels: int
+    bias: bool
     normalize_basis: bool
     weight: torch.Tensor
 
@@ -31,6 +32,7 @@ class EquiLinear(nn.Module):
         self,
         in_channels: int,
         out_channels: int,
+        bias: bool = True,
         normalize_basis: bool = True,
         device: torch.device = None,
         dtype: torch.dtype = None,
@@ -44,16 +46,24 @@ class EquiLinear(nn.Module):
         self.weight = nn.Parameter(
             torch.empty((out_channels, in_channels, 9), **factory_kwargs)
         )
+        if bias:
+            self.bias = nn.Parameter(torch.empty(out_channels, **factory_kwargs))
+        else:
+            self.register_parameter("bias", None)
         self.reset_parameters()
 
     def reset_parameters(self) -> None:
         nn.init.kaiming_uniform_(self.weight, a=math.sqrt(5))
+        if self.bias is not None:
+            fan_in, _ = nn.init._calculate_fan_in_and_fan_out(self.weight)
+            bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
+            nn.init.uniform_(self.bias, -bound, bound)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        return equi_linear(x, self.weight, self.normalize_basis)
+        return equi_linear(x, self.weight, self.bias, self.normalize_basis)
 
     def extra_repr(self) -> str:
         return (
             f"in_channels={self.in_channels}, out_channels={self.out_channels}, "
-            f"normalize_basis={self.normalize_basis}"
+            f"bias={self.bias is not None}, normalize_basis={self.normalize_basis}"
         )
