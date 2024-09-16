@@ -59,7 +59,8 @@ def _load_bilinear_basis(
         cache[(device, dtype)] = cache[proto_key].detach().to(device, dtype)
     except KeyError:
         cache[proto_key] = torch.load(
-            pathlib.Path(__file__).parent.resolve() / _BASIS_FNAME[kind]
+            pathlib.Path(__file__).parent.resolve() / _BASIS_FNAME[kind],
+            weights_only=True,
         )
 
     return _load_bilinear_basis(kind, device, dtype)
