@@ -26,7 +26,7 @@ class GeometricBilinear(nn.Module):
         Number of input channels.
     out_channels : int
         Number of output channels. This refers to the hidden size throughout
-        the network, i.e., the input number of channels of the next layer, 
+        the network, i.e., the input number of channels of the next layer,
         block, or module.
     hidden_channels : int
         Number of hidden channels. Must be even. This hidden size should not
@@ -71,18 +71,29 @@ class GeometricBilinear(nn.Module):
 class GeometricMLP(nn.Module):
     """Implements Geometric MLP block described in the GATr paper."""
 
-    def __init__(self,) -> None:
+    def __init__(
+        self,
+        in_channels: int,
+        out_channels: int,
+        hidden_channels: int,
+        channelwise_rescale: bool = True,
+    ) -> None:
         super().__init__()
 
-        self.layer_norm = EquiRMSNorm()
-        self.geometric_bilinear = GeometricBilinear()
-        self.proj_to_next = EquiLinear()
+        self.layer_norm = EquiRMSNorm(
+            in_channels,
+            channelwise_rescale=channelwise_rescale,
+        )
+        self.geo_bilinear = GeometricBilinear(
+            in_channels, out_channels, hidden_channels
+        )
+        self.proj_to_next = EquiLinear(out_channels, out_channels)
 
     def forward(self, x: torch.Tensor, reference: torch.Tensor) -> torch.Tensor:
         x_res = x
 
         x = self.layer_norm(x)
-        x = self.geometric_bilinear(x, reference)
+        x = self.geo_bilinear(x, reference)
         x = self.proj_to_next(scaler_gated_gelu(x))
 
         return x + x_res
