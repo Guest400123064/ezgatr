@@ -62,7 +62,16 @@ class Bilinear(nn.Module):
     channels, i.e., left and right. Then, the results of each operation are
     derived from the interaction of left and right hidden representations, each
     with half number of ``size_channels_intermediate``.
+
+    Parameters
+    ----------
+    config : ModelConfig
+        Configuration object for the model. See ``ModelConfig`` for more details.
     """
+
+    config: ModelConfig
+    proj_bil: EquiLinear
+    proj_out: EquiLinear
 
     def __init__(self, config: ModelConfig) -> None:
         super().__init__()
@@ -71,26 +80,57 @@ class Bilinear(nn.Module):
         if config.size_channels_intermediate % 2 != 0:
             raise ValueError("Number of hidden channels must be even.")
 
-        self.proj_bilinear = EquiLinear(
-            config.size_channels_in, config.size_channels_intermediate * 2
+        self.proj_bil = EquiLinear(
+            config.size_channels_hidden, config.size_channels_intermediate * 2
         )
-        self.proj_to_next = EquiLinear(
-            config.size_channels_intermediate, config.size_channels_out
+        self.proj_out = EquiLinear(
+            config.size_channels_intermediate, config.size_channels_hidden
         )
 
-    def forward(self, x: torch.Tensor, reference: torch.Tensor) -> torch.Tensor:
-        l_geo, r_geo, l_join, r_join = torch.split(
-            self.proj_bilinear(x), self.hidden_channels // 2, dim=-2
-        )
-        x = torch.cat(
-            [geometric_product(l_geo, r_geo), equi_join(l_join, r_join, reference)],
-            dim=-2,
-        )
-        return self.proj_to_next(x)
+    def forward(
+        self, x: torch.Tensor, reference: Optional[torch.Tensor] = None
+    ) -> torch.Tensor:
+        """Forward pass of the geometric bilinear sub-layer.
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            Batch of input hidden multi-vector representation tensor.
+        reference : Optional[torch.Tensor], default to None
+            Reference tensor for the equivariant join operation.
+
+        Returns
+        -------
+        torch.Tensor
+            Batch of output hidden multi-vector representation tensor of the
+            same number of hidden channels.
+        """
+        size_inter = self.config.size_channels_intermediate // 2
+        lg, rg, lj, rj = torch.split(self.proj_bil(x), size_inter, dim=-2)
+
+        x = torch.cat([geometric_product(lg, rg), equi_join(lj, rj, reference)], dim=-2)
+        return self.proj_out(x)
 
 
 class MLP(nn.Module):
-    """Geometric MLP block without scaler channels."""
+    """Geometric MLP block without scaler channels.
+
+    Here we fix the structure of the MLP block to be a single equivariant linear
+    projection followed by a gated GELU activation function. In addition, the
+    equivariant normalization layer can be configured to be learnable, so the
+    normalization layer needs to be included in the block instead of being shared
+    across the network.
+
+    Parameters
+    ----------
+    config : ModelConfig
+        Configuration object for the model. See ``ModelConfig`` for more details.
+    """
+
+    config: ModelConfig
+    layer_norm: EquiRMSNorm
+    equi_bil: Bilinear
+    proj_out: EquiLinear
 
     def __init__(self, config: ModelConfig) -> None:
         super().__init__()
@@ -102,23 +142,36 @@ class MLP(nn.Module):
             eps=config.norm_eps,
             channelwise_rescale=config.norm_channelwise_rescale,
         )
-        self.geo_bilinear = Bilinear(
-            config.size_channels_hidden,
-            config.size_channels_hidden,
-            config.size_channels_intermediate,
-        )
-        self.proj_to_next = EquiLinear(
+        self.equi_bil = Bilinear(config)
+        self.proj_out = EquiLinear(
             config.size_channels_hidden, config.size_channels_hidden
         )
 
-    def forward(self, x: torch.Tensor, reference: torch.Tensor) -> torch.Tensor:
-        x_res = x
+    def forward(
+        self, x: torch.Tensor, reference: Optional[torch.Tensor] = None
+    ) -> torch.Tensor:
+        """Forward pass of the geometric MLP block.
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            Batch of input hidden multi-vector representation tensor.
+        reference : Optional[torch.Tensor], default to None
+            Reference tensor for the equivariant join operation.
+
+        Returns
+        -------
+        torch.Tensor
+            Batch of output hidden multi-vector representation tensor of the
+            same number of hidden channels.
+        """
+        residual = x
 
         x = self.layer_norm(x)
-        x = self.geo_bilinear(x, reference)
-        x = self.proj_to_next(scaler_gated_gelu(x))
+        x = self.equi_bil(x, reference)
+        x = self.proj_out(scaler_gated_gelu(x))
 
-        return x + x_res
+        return x + residual
 
 
 class Attention(nn.Module):
@@ -130,9 +183,9 @@ class Attention(nn.Module):
         self.config = config
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        x_res = x
+        residual = x
 
-        return x + x_res
+        return x + residual
 
 
 class TransformerBlock(nn.Module):
