@@ -11,7 +11,7 @@ from ezgatr.nn.functional.activation import scaler_gated_gelu
 
 
 @dataclass
-class MVOnlyGATrConfig:
+class ModelConfig:
     """Configuration class for the ``MVOnlyGATr`` model.
 
     Parameters
@@ -49,7 +49,7 @@ class MVOnlyGATrConfig:
     norm_channelwise_rescale: bool = True
 
 
-class GeometricBilinear(nn.Module):
+class Bilinear(nn.Module):
     """Implements the geometric bilinear sub-layer of the geometric MLP.
 
     Geometric bilinear operation consists of geometric product and equivariant
@@ -64,7 +64,7 @@ class GeometricBilinear(nn.Module):
     with half number of ``size_channels_intermediate``.
     """
 
-    def __init__(self, config: MVOnlyGATrConfig) -> None:
+    def __init__(self, config: ModelConfig) -> None:
         super().__init__()
 
         self.config = config
@@ -89,10 +89,10 @@ class GeometricBilinear(nn.Module):
         return self.proj_to_next(x)
 
 
-class GeometricMLP(nn.Module):
+class MLP(nn.Module):
     """Geometric MLP block without scaler channels."""
 
-    def __init__(self, config: MVOnlyGATrConfig) -> None:
+    def __init__(self, config: ModelConfig) -> None:
         super().__init__()
 
         self.config = config
@@ -102,7 +102,7 @@ class GeometricMLP(nn.Module):
             eps=config.norm_eps,
             channelwise_rescale=config.norm_channelwise_rescale,
         )
-        self.geo_bilinear = GeometricBilinear(
+        self.geo_bilinear = Bilinear(
             config.size_channels_hidden,
             config.size_channels_hidden,
             config.size_channels_intermediate,
@@ -121,10 +121,10 @@ class GeometricMLP(nn.Module):
         return x + x_res
 
 
-class GeometricAttention(nn.Module):
+class Attention(nn.Module):
     """Geometric attention block with scaler channels."""
 
-    def __init__(self, config: MVOnlyGATrConfig) -> None:
+    def __init__(self, config: ModelConfig) -> None:
         super().__init__()
 
         self.config = config
@@ -135,9 +135,9 @@ class GeometricAttention(nn.Module):
         return x + x_res
 
 
-class MVOnlyGATrBlock(nn.Module):
+class TransformerBlock(nn.Module):
     pass
 
 
-class MVOnlyGATr(nn.Module):
+class Transformer(nn.Module):
     pass
