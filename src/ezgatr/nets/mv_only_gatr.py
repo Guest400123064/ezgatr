@@ -49,6 +49,34 @@ class ModelConfig:
     norm_channelwise_rescale: bool = True
 
 
+class Embedding(nn.Module):
+    """Embedding layer to project input number of channels to hidden channels.
+
+    This layer corresponds to the very first equivariant linear layer of the
+    original design mentioned in the GATr paper. 
+
+    Parameters
+    ----------
+    config : ModelConfig
+        Configuration object for the model. See ``ModelConfig`` for more details.
+    """
+
+    config: ModelConfig
+    embedding: EquiLinear
+
+    def __init__(self, config: ModelConfig) -> None:
+        super().__init__()
+
+        self.config = config
+
+        self.embedding = EquiLinear(
+            config.size_channels_in, config.size_channels_hidden
+        )
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return self.embedding(x)
+
+
 class Bilinear(nn.Module):
     """Implements the geometric bilinear sub-layer of the geometric MLP.
 
