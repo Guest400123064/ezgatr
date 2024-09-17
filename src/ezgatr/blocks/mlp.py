@@ -1,9 +1,10 @@
 import torch
 import torch.nn as nn
 
-from ezgatr.nn import EquiLinear
+from ezgatr.nn import EquiLinear, EquiRMSNorm
 from ezgatr.nn.functional.dual import equi_join
 from ezgatr.nn.functional.linear import geometric_product
+from ezgatr.nn.functional.activation import scaler_gated_gelu
 
 
 class GeometricBilinear(nn.Module):
@@ -68,4 +69,20 @@ class GeometricBilinear(nn.Module):
 
 
 class GeometricMLP(nn.Module):
-    pass
+    """Implements Geometric MLP block described in the GATr paper."""
+
+    def __init__(self,) -> None:
+        super().__init__()
+
+        self.layer_norm = EquiRMSNorm()
+        self.geometric_bilinear = GeometricBilinear()
+        self.proj_to_next = EquiLinear()
+
+    def forward(self, x: torch.Tensor, reference: torch.Tensor) -> torch.Tensor:
+        x_res = x
+
+        x = self.layer_norm(x)
+        x = self.geometric_bilinear(x, reference)
+        x = self.proj_to_next(scaler_gated_gelu(x))
+
+        return x + x_res

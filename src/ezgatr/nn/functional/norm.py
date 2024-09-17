@@ -14,7 +14,7 @@ def equi_rms_norm(
     product of multi-vectors, i.e., PGA inner-induced RMSNorm.
 
     We find the adaptation more intuitive by viewing each channel of the input
-    multi-vector as a "imaginary number", so that the inner product of the
+    multi-vector as an "imaginary number", so that the inner product of the
     multi-vector with itself is the squared "modulus". And, in turn, instead of
     thinking the input tensor as channels-of-multi-vectors, we can think of it
     as feature-vector-of-imaginary-numbers. And the normalization operation is
