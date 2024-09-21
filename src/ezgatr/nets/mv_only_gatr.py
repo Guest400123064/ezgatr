@@ -11,7 +11,7 @@ from ezgatr.nn.functional.linear import geometric_product
 
 
 @dataclass
-class ModelConfig:
+class MVOnlyGATrConfig:
     """Configuration class for the ``MVOnlyGATr`` model.
 
     Parameters
@@ -61,14 +61,14 @@ class Embedding(nn.Module):
 
     Parameters
     ----------
-    config : ModelConfig
-        Configuration object for the model. See ``ModelConfig`` for more details.
+    config : MVOnlyGATrConfig
+        Configuration object for the model. See ``MVOnlyGATrConfig`` for more details.
     """
 
-    config: ModelConfig
+    config: MVOnlyGATrConfig
     embedding: EquiLinear
 
-    def __init__(self, config: ModelConfig) -> None:
+    def __init__(self, config: MVOnlyGATrConfig) -> None:
         super().__init__()
 
         self.config = config
@@ -97,15 +97,15 @@ class GeoBilinear(nn.Module):
 
     Parameters
     ----------
-    config : ModelConfig
-        Configuration object for the model. See ``ModelConfig`` for more details.
+    config : MVOnlyGATrConfig
+        Configuration object for the model. See ``MVOnlyGATrConfig`` for more details.
     """
 
-    config: ModelConfig
+    config: MVOnlyGATrConfig
     proj_bil: EquiLinear
     proj_out: EquiLinear
 
-    def __init__(self, config: ModelConfig) -> None:
+    def __init__(self, config: MVOnlyGATrConfig) -> None:
         super().__init__()
 
         self.config = config
@@ -155,16 +155,16 @@ class GeoMLP(nn.Module):
 
     Parameters
     ----------
-    config : ModelConfig
-        Configuration object for the model. See ``ModelConfig`` for more details.
+    config : MVOnlyGATrConfig
+        Configuration object for the model. See ``MVOnlyGATrConfig`` for more details.
     """
 
-    config: ModelConfig
+    config: MVOnlyGATrConfig
     layer_norm: EquiRMSNorm
     equi_bil: GeoBilinear
     proj_out: EquiLinear
 
-    def __init__(self, config: ModelConfig) -> None:
+    def __init__(self, config: MVOnlyGATrConfig) -> None:
         super().__init__()
 
         self.config = config
@@ -209,7 +209,7 @@ class GeoMLP(nn.Module):
 class GeoAttention(nn.Module):
     """Geometric attention block with scaler channels."""
 
-    def __init__(self, config: ModelConfig) -> None:
+    def __init__(self, config: MVOnlyGATrConfig) -> None:
         super().__init__()
 
         self.config = config
@@ -220,9 +220,9 @@ class GeoAttention(nn.Module):
         return x + residual
 
 
-class GATrBlock(nn.Module):
+class MVOnlyGATrBlock(nn.Module):
     pass
 
 
-class GATr(nn.Module):
+class MVOnlyGATr(nn.Module):
     pass
