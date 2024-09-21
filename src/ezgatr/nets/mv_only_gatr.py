@@ -5,9 +5,9 @@ import torch
 import torch.nn as nn
 
 from ezgatr.nn import EquiLinear, EquiRMSNorm
+from ezgatr.nn.functional.activation import scaler_gated_gelu
 from ezgatr.nn.functional.dual import equi_join
 from ezgatr.nn.functional.linear import geometric_product
-from ezgatr.nn.functional.activation import scaler_gated_gelu
 
 
 @dataclass
@@ -36,6 +36,8 @@ class ModelConfig:
     norm_channelwise_rescale : bool, default to True
         Apply learnable channel-wise rescaling weights to the normalized multi-vector
         inputs. Initialized to ones if set to ``True``.
+    gelu_approximate : str, default to "tanh"
+        Approximation method for the GeLU function. Default to "tanh".
     """
 
     size_context: int = 2048
@@ -48,12 +50,14 @@ class ModelConfig:
     norm_eps: Optional[float] = None
     norm_channelwise_rescale: bool = True
 
+    gelu_approximate: str = "tanh"
+
 
 class Embedding(nn.Module):
     """Embedding layer to project input number of channels to hidden channels.
 
     This layer corresponds to the very first equivariant linear layer of the
-    original design mentioned in the GATr paper. 
+    original design mentioned in the GATr paper.
 
     Parameters
     ----------
@@ -77,7 +81,7 @@ class Embedding(nn.Module):
         return self.embedding(x)
 
 
-class Bilinear(nn.Module):
+class GeoBilinear(nn.Module):
     """Implements the geometric bilinear sub-layer of the geometric MLP.
 
     Geometric bilinear operation consists of geometric product and equivariant
@@ -140,7 +144,7 @@ class Bilinear(nn.Module):
         return self.proj_out(x)
 
 
-class MLP(nn.Module):
+class GeoMLP(nn.Module):
     """Geometric MLP block without scaler channels.
 
     Here we fix the structure of the MLP block to be a single equivariant linear
@@ -157,7 +161,7 @@ class MLP(nn.Module):
 
     config: ModelConfig
     layer_norm: EquiRMSNorm
-    equi_bil: Bilinear
+    equi_bil: GeoBilinear
     proj_out: EquiLinear
 
     def __init__(self, config: ModelConfig) -> None:
@@ -170,7 +174,7 @@ class MLP(nn.Module):
             eps=config.norm_eps,
             channelwise_rescale=config.norm_channelwise_rescale,
         )
-        self.equi_bil = Bilinear(config)
+        self.equi_bil = GeoBilinear(config)
         self.proj_out = EquiLinear(
             config.size_channels_hidden, config.size_channels_hidden
         )
@@ -197,12 +201,12 @@ class MLP(nn.Module):
 
         x = self.layer_norm(x)
         x = self.equi_bil(x, reference)
-        x = self.proj_out(scaler_gated_gelu(x))
+        x = self.proj_out(scaler_gated_gelu(x, self.config.gelu_approximate))
 
         return x + residual
 
 
-class Attention(nn.Module):
+class GeoAttention(nn.Module):
     """Geometric attention block with scaler channels."""
 
     def __init__(self, config: ModelConfig) -> None:
@@ -216,9 +220,9 @@ class Attention(nn.Module):
         return x + residual
 
 
-class TransformerBlock(nn.Module):
+class GATrBlock(nn.Module):
     pass
 
 
-class Transformer(nn.Module):
+class GATr(nn.Module):
     pass
