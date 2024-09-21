@@ -16,6 +16,8 @@ class MVOnlyGATrConfig:
 
     Parameters
     ----------
+    num_layers : int, default to 4
+        Number of GATr blocks in the network.
     size_context : int, default to 2048
         Number of elements, e.g., number of points in a point cloud,
         in the input sequence.
@@ -40,6 +42,7 @@ class MVOnlyGATrConfig:
         Approximation method for the GeLU function. Default to "tanh".
     """
 
+    num_layers: int = 4
     size_context: int = 2048
 
     size_channels_in: int = 1
