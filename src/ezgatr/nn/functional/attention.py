@@ -105,9 +105,11 @@ def compute_qk_for_daa(
 
     def _build_dist_vec(q_or_k, basis):
         sel = _compute_tri_vector_selector(query.device)
+        exp = "... c k -> ... (c k)"
+
         tri = torch.index_select(q_or_k, -1, sel)
-        ret = tri * _linear_square_normalizer(tri[..., [3]])
-        return torch.einsum("ijk, ...i, ...j -> ...k", basis, ret, ret)
+        tri = tri * _linear_square_normalizer(tri[..., [3]])
+        return rearrange(torch.einsum("ijk, ...i, ...j -> ...k", basis, tri, tri), exp)
 
     bq, bk = _compute_daa_qk_basis(query.device, query.dtype)
     return _build_dist_vec(query, bq), _build_dist_vec(key, bk)
