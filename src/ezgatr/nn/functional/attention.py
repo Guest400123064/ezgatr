@@ -45,7 +45,9 @@ def compute_qk_for_daa(
     -------
     tuple[torch.Tensor, torch.Tensor]
         Query and key tensors for the equivariant distance-aware attention.
+        with the channel-blade dimensions flattened.
     """
+    raise NotImplementedError
 
 
 def compute_qk_for_ipa(
@@ -63,7 +65,8 @@ def compute_qk_for_ipa(
     Returns
     -------
     tuple[torch.Tensor, torch.Tensor]
-        Query and key tensors for the equivariant inner product attention.
+        Query and key tensors for the equivariant inner product attention
+        with the channel-blade dimensions flattened.
     """
 
     def _select_rearrange(mv):
