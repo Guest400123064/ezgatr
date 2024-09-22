@@ -6,6 +6,10 @@ import torch.nn as nn
 
 from ezgatr.nn import EquiLinear, EquiRMSNorm
 from ezgatr.nn.functional.activation import scaler_gated_gelu
+from ezgatr.nn.functional.attention import (
+    equi_geometric_attention,
+    linear_square_normalizer,
+)
 from ezgatr.nn.functional.dual import equi_join
 from ezgatr.nn.functional.linear import geometric_product
 

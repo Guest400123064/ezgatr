@@ -1,5 +1,5 @@
 import functools
-from typing import Optional, Literal
+from typing import Any, Literal, Optional
 
 import torch
 import torch.nn.functional as F
@@ -25,12 +25,65 @@ def _compute_tri_vector_selector(device: torch.device) -> torch.Tensor:
 
 
 @functools.lru_cache(maxsize=None, typed=True)
-def _compute_daa_qk_basis():
-    pass
+def _compute_daa_qk_basis(
+    device: torch.device, dtype: torch.dtype
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """Compute basis queries and keys in the distance-aware attention.
+
+    Parameters
+    ----------
+    device: torch.device
+        Device for the basis.
+    dtype: torch.dtype
+        Data type for the basis.
+
+    Returns
+    -------
+    tuple[torch.Tensor, torch.Tensor]
+        Basis tensor for the queries and keys in the distance-aware attention.
+        Both with shape (4, 4, 5).
+    """
+    bq = torch.zeros((4, 4, 5), device=device, dtype=dtype)
+    bk = torch.zeros((4, 4, 5), device=device, dtype=dtype)
+    r3 = torch.arange(3, device=device)
+
+    bq[r3, r3, 0] = 1.0
+    bk[3, 3, 0] = -1.0
+
+    bq[3, 3, 1] = 1.0
+    bk[r3, r3, 1] = -1.0
+
+    bq[r3, 3, r3 + 2] = 1.0
+    bk[r3, 3, r3 + 2] = 2.0
+
+    return bq, bk
+
+
+def _linear_square_normalizer(
+    e123: torch.Tensor, eps: Optional[float] = None
+) -> torch.Tensor:
+    """Apply linear square normalization to the input tensor.
+
+    Parameters
+    ----------
+    e123 : torch.Tensor
+        Coefficients corresponds to the ``e_123`` blade.
+    eps : Optional[float], default to None
+        Small value to avoid division by zero.
+
+    Returns
+    -------
+    torch.Tensor
+        Normalized multi-vector tensor.
+    """
+    eps = eps or torch.finfo(e123.dtype).eps
+    return e123 / (e123.pow(2) + eps)
 
 
 def compute_qk_for_daa(
-    query: torch.Tensor, key: torch.Tensor
+    query: torch.Tensor,
+    key: torch.Tensor,
+    eps: Optional[float] = None,
 ) -> tuple[torch.Tensor, torch.Tensor]:
     """Compute the query and key tensors for the distance-aware attention.
 
@@ -40,6 +93,8 @@ def compute_qk_for_daa(
         Query tensor with shape (B, H, T, qk_channels, 16).
     key : torch.Tensor
         Key tensor with shape (B, H, T, qk_channels, 16).
+    eps : Optional[float], default to None
+        Small value to avoid division by zero used in the linear square normalizer.
 
     Returns
     -------
@@ -47,7 +102,15 @@ def compute_qk_for_daa(
         Query and key tensors for the equivariant distance-aware attention.
         with the channel-blade dimensions flattened.
     """
-    raise NotImplementedError
+
+    def _build_dist_vec(q_or_k, basis):
+        sel = _compute_tri_vector_selector(query.device)
+        tri = torch.index_select(q_or_k, -1, sel)
+        ret = tri * _linear_square_normalizer(tri[..., [3]])
+        return torch.einsum("ijk, ...i, ...j -> ...k", basis, ret, ret)
+
+    bq, bk = _compute_daa_qk_basis(query.device, query.dtype)
+    return _build_dist_vec(query, bq), _build_dist_vec(key, bk)
 
 
 def compute_qk_for_ipa(
@@ -87,7 +150,8 @@ def equi_geometric_attention(
     query: torch.Tensor,
     key: torch.Tensor,
     value: torch.Tensor,
-    kinds: list[Literal["ipa", "daa"]],
+    kinds: dict[Literal["ipa", "daa"], Optional[dict[str, Any]]],
+    weight: Optional[torch.Tensor] = None,
     attn_mask: Optional[torch.Tensor] = None,
     dropout_p: float = 0.0,
     is_causal: bool = False,
@@ -103,11 +167,17 @@ def equi_geometric_attention(
         Key tensor with shape (B, H, T, qk_channels, 16).
     value : torch.Tensor
         Value tensor with shape (B, H, T, v_channels, 16).
-    kinds : list[Literal["ipa", "daa"]]
-        Kinds of similarity measures to consider in the attention calculation.
-        One should supply a list of attention kinds. Available options are:
+    kinds : dict[Literal["ipa", "daa"], dict[str, Any]]
+        Kinds of similarity measures to consider in the attention calculation
+        along with additional configuration/parameters sent to the corresponding
+        query-key generating function. One should supply a dictionary mapping
+        from kind to parameters in addition to query and key tensors. Use ``None``
+        to denote no additional parameters supplied. Available options are:
             - "ipa": Inner product attention.
             - "daa": Distance-aware attention
+    weight : Optional[torch.Tensor], default to None
+        Weight tensor for the attention kinds. If not provided, the weights are
+        set to 1.0 for all kinds to represent equal importance.
     attn_mask : Optional[torch.Tensor], default to None
         Attention mask tensor.
     dropout_p : float, default to 0.0
@@ -123,14 +193,27 @@ def equi_geometric_attention(
     torch.Tensor
         Output tensor with shape (B, H, T, v_channels, 16).
     """
-    qs, ks = zip(_ATTENTION_KIND_DISPATCH[kind](query, key) for kind in kinds)
+    weight = weight or [1.0] * len(kinds)
+    if len(kinds.keys()) != len(weight):
+        msg = (
+            "The length of the kinds and weight must be the same. "
+            f"Got {len(kinds)} kinds and {len(weight)} weights."
+        )
+        raise ValueError(msg)
+
+    qs, ks = [], []
+    for (kind, kwargs), w in zip(kinds.items(), weight):
+        q, k = _ATTENTION_KIND_DISPATCH[kind](query, key, **(kwargs or {}))
+        qs.append(q * w)
+        ks.append(k)
+
     ret = F.scaled_dot_product_attention(
         torch.cat(qs, dim=-1),
         torch.cat(ks, dim=-1),
-        value,
+        rearrange(value, "... c k -> ... (c k)"),
         attn_mask=attn_mask,
         dropout_p=dropout_p,
         is_causal=is_causal,
         scale=scale,
     )
-    return rearrange(ret, "... (v c) -> ... v c", c=16)
+    return rearrange(ret, "... (c k) -> ... c k", k=16)
