@@ -100,16 +100,13 @@ def compute_qk_for_daa(
     -------
     tuple[torch.Tensor, torch.Tensor]
         Query and key tensors for the equivariant distance-aware attention.
-        with the channel-blade dimensions flattened.
     """
 
     def _build_dist_vec(q_or_k, basis):
         sel = _compute_tri_vector_selector(query.device)
-        exp = "... c k -> ... (c k)"
-
         tri = torch.index_select(q_or_k, -1, sel)
-        tri = tri * _linear_square_normalizer(tri[..., [3]])
-        return rearrange(torch.einsum("ijk, ...i, ...j -> ...k", basis, tri, tri), exp)
+        ret = tri * _linear_square_normalizer(tri[..., [3]])
+        return torch.einsum("ijk, ...i, ...j -> ...k", basis, ret, ret)
 
     bq, bk = _compute_daa_qk_basis(query.device, query.dtype)
     return _build_dist_vec(query, bq), _build_dist_vec(key, bk)
@@ -134,12 +131,11 @@ def compute_qk_for_ipa(
         with the channel-blade dimensions flattened.
     """
 
-    def _select_rearrange(mv):
-        sel = _compute_inner_product_selector(mv.device)
-        exp = "... c k -> ... (c k)"
-        return rearrange(torch.index_select(mv, -1, sel), exp)
+    def _build_inner_vec(q_or_k):
+        sel = _compute_inner_product_selector(q_or_k.device)
+        return torch.index_select(q_or_k, -1, sel)
 
-    return _select_rearrange(query), _select_rearrange(key)
+    return _build_inner_vec(query), _build_inner_vec(key)
 
 
 _ATTENTION_KIND_DISPATCH = {
@@ -175,9 +171,9 @@ def equi_geometric_attention(
         query-key generating function. One should supply a dictionary mapping
         from kind to parameters in addition to query and key tensors. Use ``None``
         to denote no additional parameters supplied. Available options are:
-            - "ipa": Inner product attention.
+            - "ipa": Inner product attention
             - "daa": Distance-aware attention
-    weight : Optional[torch.Tensor], default to None
+    weight : Optional[list[torch.Tensor]], default to None
         Weight tensor for the attention kinds. If not provided, the weights are
         set to 1.0 for all kinds to represent equal importance.
     attn_mask : Optional[torch.Tensor], default to None
@@ -195,6 +191,10 @@ def equi_geometric_attention(
     torch.Tensor
         Output tensor with shape (B, H, T, v_channels, 16).
     """
+
+    def _flatten_ck(mv):
+        return rearrange(mv, "... c k -> ... (c k)")
+
     weight = weight or [1.0] * len(kinds)
     if len(kinds.keys()) != len(weight):
         msg = (
@@ -206,8 +206,8 @@ def equi_geometric_attention(
     qs, ks = [], []
     for (kind, kwargs), w in zip(kinds.items(), weight):
         q, k = _ATTENTION_KIND_DISPATCH[kind](query, key, **(kwargs or {}))
-        qs.append(q * w)
-        ks.append(k)
+        qs.append(_flatten_ck(q * w))
+        ks.append(_flatten_ck(k))
 
     ret = F.scaled_dot_product_attention(
         torch.cat(qs, dim=-1),

@@ -1,15 +1,13 @@
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, field
+from typing import Optional, Literal, Any
 
 import torch
 import torch.nn as nn
+from einops import rearrange
 
 from ezgatr.nn import EquiLinear, EquiRMSNorm
 from ezgatr.nn.functional.activation import scaler_gated_gelu
-from ezgatr.nn.functional.attention import (
-    equi_geometric_attention,
-    linear_square_normalizer,
-)
+from ezgatr.nn.functional.attention import equi_geometric_attention
 from ezgatr.nn.functional.dual import equi_join
 from ezgatr.nn.functional.linear import geometric_product
 
@@ -54,13 +52,21 @@ class MVOnlyGATrConfig:
     size_channels_hidden: int = 32
     size_channels_intermediate: int = 32
 
+    attn_num_heads: int = 4
+    attn_kinds: dict[Literal["ipa", "daa"], Optional[dict[str, Any]]] = field(
+        default_factory=lambda: {"ipa": None, "daa": None}
+    )
+    attn_dropout_p: float = 0.0
+    attn_is_causal: bool = True
+    attn_scale: Optional[float] = None
+
     norm_eps: Optional[float] = None
     norm_channelwise_rescale: bool = True
 
     gelu_approximate: str = "tanh"
 
 
-class Embedding(nn.Module):
+class MVOnlyGATrEmbedding(nn.Module):
     """Embedding layer to project input number of channels to hidden channels.
 
     This layer corresponds to the very first equivariant linear layer of the
@@ -88,7 +94,7 @@ class Embedding(nn.Module):
         return self.embedding(x)
 
 
-class GeoBilinear(nn.Module):
+class MVOnlyGATrBilinear(nn.Module):
     """Implements the geometric bilinear sub-layer of the geometric MLP.
 
     Geometric bilinear operation consists of geometric product and equivariant
@@ -151,7 +157,7 @@ class GeoBilinear(nn.Module):
         return self.proj_out(x)
 
 
-class GeoMLP(nn.Module):
+class MVOnlyGATrMLP(nn.Module):
     """Geometric MLP block without scaler channels.
 
     Here we fix the structure of the MLP block to be a single equivariant linear
@@ -168,7 +174,7 @@ class GeoMLP(nn.Module):
 
     config: MVOnlyGATrConfig
     layer_norm: EquiRMSNorm
-    equi_bil: GeoBilinear
+    equi_bil: MVOnlyGATrBilinear
     proj_out: EquiLinear
 
     def __init__(self, config: MVOnlyGATrConfig) -> None:
@@ -181,7 +187,7 @@ class GeoMLP(nn.Module):
             eps=config.norm_eps,
             channelwise_rescale=config.norm_channelwise_rescale,
         )
-        self.equi_bil = GeoBilinear(config)
+        self.equi_bil = MVOnlyGATrBilinear(config)
         self.proj_out = EquiLinear(
             config.size_channels_hidden, config.size_channels_hidden
         )
@@ -213,22 +219,138 @@ class GeoMLP(nn.Module):
         return x + residual
 
 
-class GeoAttention(nn.Module):
-    """Geometric attention block with scaler channels."""
+class MVOnlyGATrAttention(nn.Module):
+    """Geometric attention block without scaler channels.
+
+    The GATr attention calculation is slightly different from the original
+    transformers implementation in that each head has the sample number of
+    channels as the input tensor, instead of dividing into smaller chunks.
+    In this case, the final output linear transformation maps from
+    ``size_channels_hidden * attn_num_heads`` to ``size_channels_hidden``.
+
+    Parameters
+    ----------
+    config : MVOnlyGATrConfig
+        Configuration object for the model. See ``MVOnlyGATrConfig`` for more details.
+    """
+
+    config: MVOnlyGATrConfig
+    layer_norm: EquiRMSNorm
+    attn_mix: list[torch.Tensor]
+    proj_qkv: EquiLinear
 
     def __init__(self, config: MVOnlyGATrConfig) -> None:
         super().__init__()
 
         self.config = config
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        self.layer_norm = EquiRMSNorm(
+            config.size_channels_hidden,
+            eps=config.norm_eps,
+            channelwise_rescale=config.norm_channelwise_rescale,
+        )
+
+        # The two dummy dimensions are for the sequence length
+        # and blade dimension, respectively.
+        attn_mix_shape = (config.attn_num_heads, 1, config.size_channels_hidden, 1)
+        self.attn_mix = {}
+        for kind in config.attn_kinds.keys():
+            param = nn.Parameter(torch.zeros(attn_mix_shape, dtype=torch.float32))
+            self.attn_mix[kind] = param
+            self.register_parameter(f"attn_mix_{kind}", param)
+
+        self.proj_qkv = EquiLinear(
+            config.size_channels_hidden,
+            config.size_channels_hidden * config.attn_num_heads * 3,
+        )
+        self.proj_out = EquiLinear(
+            config.size_channels_hidden * config.attn_num_heads,
+            config.size_channels_hidden,
+        )
+
+    def forward(
+        self, x: torch.Tensor, attn_mask: Optional[torch.Tensor] = None
+    ) -> torch.Tensor:
+        """Forward pass of the geometric attention block.
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            Batch of input hidden multi-vector representation tensor.
+        attn_mask : Optional[torch.Tensor], default to None
+            Attention mask tensor for the attention operation. Usually
+            used if any specific attention constraints are needed within
+            a single sequence, such as padding mask or for discriminating
+            different subsequences.
+
+        Returns
+        -------
+        torch.Tensor
+            Batch of output hidden multi-vector representation tensor of the
+            same number of hidden channels.
+        """
         residual = x
+
+        x = self.layer_norm(x)
+        q, k, v = rearrange(
+            self.proj_qkv(x),
+            "b t (qkv h c) k -> qkv b h t c k",
+            qkv=3,
+            h=self.config.attn_num_heads,
+            c=self.config.size_channels_hidden,
+        )
+        x = equi_geometric_attention(
+            q,
+            k,
+            v,
+            kinds=self.config.attn_kinds,
+            weight=[w.exp() for w in self.attn_mix.values()],
+            attn_mask=attn_mask,
+            is_causal=self.config.attn_is_causal,
+            dropout_p=self.config.attn_dropout_p,
+            scale=self.config.attn_scale,
+        )
+        x = rearrange(x, "b h t c k -> b t (h c) k", h=self.config.attn_num_heads)
+        x = self.proj_out(x)
 
         return x + residual
 
 
 class MVOnlyGATrBlock(nn.Module):
-    pass
+    """GATr block without scaler channels.
+
+    Parameters
+    ----------
+    config : MVOnlyGATrConfig
+        Configuration object for the model. See ``MVOnlyGATrConfig`` for more details.
+    layer_id : int
+        Index of the current block in the network.
+    """
+
+    config: MVOnlyGATrConfig
+    layer_id: int
+    mlp: MVOnlyGATrMLP
+    attn: MVOnlyGATrAttention
+
+    def __init__(self, config: MVOnlyGATrConfig, layer_id: int) -> None:
+        super().__init__()
+
+        self.config = config
+        self.layer_id = layer_id
+
+        self.mlp = MVOnlyGATrMLP(config)
+        self.attn = MVOnlyGATrAttention(config)
+
+    def forward(
+        self,
+        x: torch.Tensor,
+        reference: Optional[torch.Tensor] = None,
+        attn_mask: Optional[torch.Tensor] = None,
+    ) -> torch.Tensor:
+        x = self.mlp(x, reference)
+        x = self.attn(x, attn_mask)
+
+        return x
 
 
 class MVOnlyGATr(nn.Module):
