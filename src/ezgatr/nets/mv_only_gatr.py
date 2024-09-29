@@ -1,3 +1,4 @@
+import math
 from dataclasses import dataclass, field
 from typing import Optional, Literal, Any
 
@@ -355,4 +356,48 @@ class MVOnlyGATrBlock(nn.Module):
 
 
 class MVOnlyGATr(nn.Module):
-    pass
+    """Multi-Vector only GATr model.
+
+    Parameters
+    ----------
+    config : MVOnlyGATrConfig
+        Configuration object for the model. See ``MVOnlyGATrConfig`` for more details.
+    """
+
+    config: MVOnlyGATrConfig
+
+    def __init__(self, config: MVOnlyGATrConfig) -> None:
+        super().__init__()
+
+        self.config = config
+
+        self.embedding = MVOnlyGATrEmbedding(config)
+        self.blocks = nn.ModuleList(
+            [
+                MVOnlyGATrBlock(config, i)
+                for i in range(config.num_layers)
+            ]
+        )
+        self.proj_out = EquiLinear(
+            config.size_channels_hidden, config.size_channels_out
+        )
+
+        self._init_params(self)
+
+    def _init_params(self, module: nn.Module):
+        """Slight adjustment to Kaiming init by down-scaling the weights
+        by the number of encoder layers, following the GPT-2 paper.
+
+        Parameters
+        ----------
+        module : nn.Module
+            Module to initialize.
+        """
+        if isinstance(module, EquiLinear):
+            nn.init.kaiming_uniform_(module.weight, nonlinearity="relu")
+            module.weight.data /= math.sqrt(self.config.num_layers)
+            if module.bias is not None:
+                nn.init.zeros_(module.bias)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        raise NotImplementedError
