@@ -228,6 +228,10 @@ class MVOnlyGATrAttention(nn.Module):
     In this case, the final output linear transformation maps from
     ``size_channels_hidden * attn_num_heads`` to ``size_channels_hidden``.
 
+    One additional note here is that the ``attn_mix`` parameter is a dictionary
+    of learnable weighting parameter **LOGITS** for each attention kind.
+    They will be exponentiated before being used in the attention calculation.
+    
     Parameters
     ----------
     config : MVOnlyGATrConfig
