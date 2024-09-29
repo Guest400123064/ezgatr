@@ -367,7 +367,7 @@ class MVOnlyGATr(nn.Module):
     config: MVOnlyGATrConfig
     embedding: MVOnlyGATrEmbedding
     blocks: nn.ModuleList[MVOnlyGATrBlock]
-    proj_out: EquiLinear
+    head: EquiLinear
 
     def __init__(self, config: MVOnlyGATrConfig) -> None:
         super().__init__()
@@ -378,7 +378,7 @@ class MVOnlyGATr(nn.Module):
         self.blocks = nn.ModuleList(
             [MVOnlyGATrBlock(config, i) for i in range(config.num_layers)]
         )
-        self.proj_out = EquiLinear(
+        self.head = EquiLinear(
             config.size_channels_hidden, config.size_channels_out
         )
         self.apply(self._init_params)
