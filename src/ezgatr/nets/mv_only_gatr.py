@@ -365,6 +365,9 @@ class MVOnlyGATr(nn.Module):
     """
 
     config: MVOnlyGATrConfig
+    embedding: MVOnlyGATrEmbedding
+    blocks: nn.ModuleList[MVOnlyGATrBlock]
+    proj_out: EquiLinear
 
     def __init__(self, config: MVOnlyGATrConfig) -> None:
         super().__init__()
