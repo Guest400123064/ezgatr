@@ -231,7 +231,7 @@ class MVOnlyGATrAttention(nn.Module):
     One additional note here is that the ``attn_mix`` parameter is a dictionary
     of learnable weighting parameter **LOGITS** for each attention kind.
     They will be exponentiated before being used in the attention calculation.
-    
+
     Parameters
     ----------
     config : MVOnlyGATrConfig
