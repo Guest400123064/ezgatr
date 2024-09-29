@@ -347,10 +347,7 @@ class MVOnlyGATrBlock(nn.Module):
         reference: Optional[torch.Tensor] = None,
         attn_mask: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        x = self.mlp(x, reference)
-        x = self.attn(x, attn_mask)
-
-        return x
+        return self.attn(self.mlp(x, reference), attn_mask)
 
 
 class MVOnlyGATr(nn.Module):
