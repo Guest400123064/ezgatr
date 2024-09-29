@@ -381,8 +381,7 @@ class MVOnlyGATr(nn.Module):
         self.proj_out = EquiLinear(
             config.size_channels_hidden, config.size_channels_out
         )
-
-        self._init_params(self)
+        self.apply(self._init_params)
 
     def _init_params(self, module: nn.Module):
         """Slight adjustment to Kaiming init by down-scaling the weights
