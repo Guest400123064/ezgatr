@@ -373,10 +373,7 @@ class MVOnlyGATr(nn.Module):
 
         self.embedding = MVOnlyGATrEmbedding(config)
         self.blocks = nn.ModuleList(
-            [
-                MVOnlyGATrBlock(config, i)
-                for i in range(config.num_layers)
-            ]
+            [MVOnlyGATrBlock(config, i) for i in range(config.num_layers)]
         )
         self.proj_out = EquiLinear(
             config.size_channels_hidden, config.size_channels_out
