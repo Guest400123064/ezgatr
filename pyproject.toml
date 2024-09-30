@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "ezgatr"
+version = "0.1.0"
+description = ""
+authors = [
+    "guest400123064 <wangy49@alumni.upenn.edu>",
+    "M4D-SC1ENTIST <xiatao.sun@yale.edu>"
+]
+readme = "README.md"
+packages = [
+    { include = "ezgatr", from = "src" }
+]
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+torch = "^2.4.1"
+einops = "^0.8.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
