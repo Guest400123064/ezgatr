@@ -1,6 +1,6 @@
 import torch
 
-from ezgatr.primitives.bilinear import geometric_product
+from ezgatr.nn.functional.linear import geometric_product
 
 
 class Point:
