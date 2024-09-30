@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import math
 from dataclasses import dataclass, field
 from functools import reduce
-from typing import Annotated, Optional, Literal, Any
+from typing import Annotated, Any, Literal
 
 import torch
 import torch.nn as nn
@@ -55,14 +57,14 @@ class MVOnlyGATrConfig:
     size_channels_intermediate: int = 32
 
     attn_num_heads: int = 4
-    attn_kinds: dict[Literal["ipa", "daa"], Optional[dict[str, Any]]] = field(
+    attn_kinds: dict[Literal["ipa", "daa"], dict[str, Any] | None] = field(
         default_factory=lambda: {"ipa": None, "daa": None}
     )
     attn_dropout_p: float = 0.0
     attn_is_causal: bool = True
-    attn_scale: Optional[float] = None
+    attn_scale: float | None = None
 
-    norm_eps: Optional[float] = None
+    norm_eps: float | None = None
     norm_channelwise_rescale: bool = True
 
     gelu_approximate: str = "tanh"
@@ -141,7 +143,7 @@ class MVOnlyGATrBilinear(nn.Module):
         )
 
     def forward(
-        self, x: torch.Tensor, reference: Optional[torch.Tensor] = None
+        self, x: torch.Tensor, reference: torch.Tensor | None = None
     ) -> torch.Tensor:
         """Forward pass of the geometric bilinear sub-layer.
 
@@ -201,7 +203,7 @@ class MVOnlyGATrMLP(nn.Module):
         )
 
     def forward(
-        self, x: torch.Tensor, reference: Optional[torch.Tensor] = None
+        self, x: torch.Tensor, reference: torch.Tensor | None = None
     ) -> torch.Tensor:
         """Forward pass of the geometric MLP block.
 
@@ -281,7 +283,7 @@ class MVOnlyGATrAttention(nn.Module):
         )
 
     def forward(
-        self, x: torch.Tensor, attn_mask: Optional[torch.Tensor] = None
+        self, x: torch.Tensor, attn_mask: torch.Tensor | None = None
     ) -> torch.Tensor:
         """Forward pass of the geometric attention block.
 
@@ -356,8 +358,8 @@ class MVOnlyGATrBlock(nn.Module):
     def forward(
         self,
         x: torch.Tensor,
-        reference: Optional[torch.Tensor] = None,
-        attn_mask: Optional[torch.Tensor] = None,
+        reference: torch.Tensor | None = None,
+        attn_mask: torch.Tensor | None = None,
     ) -> torch.Tensor:
         return self.attn(self.mlp(x, reference), attn_mask)
 
@@ -406,8 +408,8 @@ class MVOnlyGATrModel(nn.Module):
     def forward(
         self,
         x: torch.Tensor,
-        reference: Optional[torch.Tensor] = None,
-        attn_mask: Optional[torch.Tensor] = None,
+        reference: torch.Tensor | None = None,
+        attn_mask: torch.Tensor | None = None,
     ) -> torch.Tensor:
         x = reduce(
             lambda x, block: block(x, reference, attn_mask),
