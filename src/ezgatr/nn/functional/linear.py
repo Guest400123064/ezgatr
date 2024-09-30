@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import functools
 import os
 import pathlib
@@ -264,6 +266,12 @@ def equi_linear(
     """
     basis = _compute_pin_equi_linear_basis(x.device, x.dtype, normalize_basis)
 
+    # The abbreviations are as follows:
+    #   o: output channels
+    #   i: input channels
+    #   w: learnable parameters
+    #   d: destination blades
+    #   s: source blades
     x = torch.einsum("oiw, wds, ...is -> ...od", weight, basis, x)
     if bias is not None:
         x[..., [0]] += bias.view(-1, 1)
