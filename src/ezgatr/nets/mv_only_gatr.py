@@ -93,6 +93,12 @@ class MVOnlyGATrEmbedding(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        if x.shape[-2] != self.config.size_channels_in:
+            msg = (
+                f"Input tensor has {x.shape[-1]} channels, "
+                f"expected {self.config.size_channels_in}."
+            )
+            raise ValueError(msg)
         return self.embedding(x)
 
 
@@ -379,9 +385,7 @@ class MVOnlyGATrModel(nn.Module):
         self.blocks = nn.ModuleList(
             MVOnlyGATrBlock(config, i) for i in range(config.num_layers)
         )
-        self.head = EquiLinear(
-            config.size_channels_hidden, config.size_channels_out
-        )
+        self.head = EquiLinear(config.size_channels_hidden, config.size_channels_out)
         self.apply(self._init_params)
 
     def _init_params(self, module: nn.Module):
@@ -408,6 +412,6 @@ class MVOnlyGATrModel(nn.Module):
         x = reduce(
             lambda x, block: block(x, reference, attn_mask),
             self.blocks,
-            self.embedding(x)
+            self.embedding(x),
         )
         return self.head(x)
