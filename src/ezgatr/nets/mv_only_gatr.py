@@ -355,7 +355,7 @@ class MVOnlyGATrBlock(nn.Module):
         return self.attn(self.mlp(x, reference), attn_mask)
 
 
-class MVOnlyGATr(nn.Module):
+class MVOnlyGATrModel(nn.Module):
     """Multi-Vector only GATr model.
 
     Parameters
@@ -376,7 +376,7 @@ class MVOnlyGATr(nn.Module):
 
         self.embedding = MVOnlyGATrEmbedding(config)
         self.blocks = nn.ModuleList(
-            [MVOnlyGATrBlock(config, i) for i in range(config.num_layers)]
+            MVOnlyGATrBlock(config, i) for i in range(config.num_layers)
         )
         self.head = EquiLinear(
             config.size_channels_hidden, config.size_channels_out
@@ -398,5 +398,13 @@ class MVOnlyGATr(nn.Module):
             if module.bias is not None:
                 nn.init.zeros_(module.bias)
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        raise NotImplementedError
+    def forward(
+        self,
+        x: torch.Tensor,
+        reference: Optional[torch.Tensor] = None,
+        attn_mask: Optional[torch.Tensor] = None,
+    ) -> torch.Tensor:
+        x = self.embedding(x)
+        for block in self.blocks:
+            x = block(x, reference, attn_mask)
+        return self.head(x)
