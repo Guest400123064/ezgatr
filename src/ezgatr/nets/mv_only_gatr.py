@@ -1,6 +1,7 @@
 import math
 from dataclasses import dataclass, field
-from typing import Optional, Literal, Any
+from functools import reduce
+from typing import Annotated, Optional, Literal, Any
 
 import torch
 import torch.nn as nn
@@ -366,7 +367,7 @@ class MVOnlyGATrModel(nn.Module):
 
     config: MVOnlyGATrConfig
     embedding: MVOnlyGATrEmbedding
-    blocks: nn.ModuleList[MVOnlyGATrBlock]
+    blocks: Annotated[list[MVOnlyGATrBlock], nn.ModuleList]
     head: EquiLinear
 
     def __init__(self, config: MVOnlyGATrConfig) -> None:
@@ -404,7 +405,9 @@ class MVOnlyGATrModel(nn.Module):
         reference: Optional[torch.Tensor] = None,
         attn_mask: Optional[torch.Tensor] = None,
     ) -> torch.Tensor:
-        x = self.embedding(x)
-        for block in self.blocks:
-            x = block(x, reference, attn_mask)
+        x = reduce(
+            lambda x, block: block(x, reference, attn_mask),
+            self.blocks,
+            self.embedding(x)
+        )
         return self.head(x)
