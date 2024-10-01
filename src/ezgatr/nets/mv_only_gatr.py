@@ -26,7 +26,8 @@ class MVOnlyGATrConfig:
         Number of GATr blocks in the network.
     size_context : int, default to 2048
         Number of elements, e.g., number of points in a point cloud,
-        in the input sequence.
+        in the input sequence. This argument is not actually used in
+        the model, but is kept for compatibility.
     size_channels_in : int, default to 1
         Number of input channels.
     size_channels_out : int, default to 1
@@ -96,11 +97,10 @@ class MVOnlyGATrEmbedding(nn.Module):
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         if x.shape[-2] != self.config.size_channels_in:
-            msg = (
-                f"Input tensor has {x.shape[-1]} channels, "
+            raise ValueError(
+                f"Input tensor has {x.shape[-2]} channels, "
                 f"expected {self.config.size_channels_in}."
             )
-            raise ValueError(msg)
         return self.embedding(x)
 
 
