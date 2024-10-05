@@ -6,6 +6,7 @@ import pathlib
 from typing import Literal
 
 import torch
+import torch.nn.functional as F
 
 _BASIS_FNAME: dict[str, str] = {
     "gp": os.path.join("basis", "geometric_product.pt"),
@@ -276,3 +277,31 @@ def equi_linear(
     if bias is not None:
         x[..., [0]] += bias.view(-1, 1)
     return x
+
+
+def dense_linear(
+    x: torch.Tensor,
+    weight: torch.Tensor,
+    bias: torch.Tensor = None,
+) -> torch.Tensor:
+    """Reduce multi-vectors with a linear map applied to scalar and ``e_0``.
+
+    This operation is not equivariant. The output of this operation contains
+    only scalars therefore **the blade dimension is squeezed**.
+
+    Parameters
+    ----------
+    x : torch.Tensor with shape (..., in_channels, 16)
+        Input multivector. Batch dimensions must be broadcastable between
+        x and weight.
+    weight : torch.Tensor with shape (out_channels, in_channels * 2)
+        Coefficients for the scalar and ``e_0`` elements.
+    bias : torch.Tensor with shape (out_channels,)
+        Bias for the linear map.
+
+    Returns
+    -------
+    torch.Tensor
+        Output with shape (..., out_channels).
+    """
+    return F.linear(torch.flatten(x[..., :2], -2), weight, bias)
