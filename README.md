@@ -1,6 +1,6 @@
 <html>
     <h1 align="center">
-      <img src="./docs/images/logo.png" width="256"/>
+      <img src="./docs/images/ezgatr_logo.png" width="256"/>
     </h1>
     <h3 align="center">
       Plane-based Geometric Algebra Transformer Made Easy
