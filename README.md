@@ -24,7 +24,7 @@ $ pip install -e .
 
 ## Usage
 
-## Source Structure
+## Documentation
 
 ## Roadmap
 
