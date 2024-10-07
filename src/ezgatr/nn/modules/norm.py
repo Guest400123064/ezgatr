@@ -1,5 +1,3 @@
-from typing import Optional
-
 import torch
 import torch.nn as nn
 
@@ -23,17 +21,17 @@ class EquiRMSNorm(nn.Module):
     __constants__ = ["eps", "channelwise_rescale"]
 
     in_channels: int
-    eps: Optional[float]
+    eps: float | None
     channelwise_rescale: bool
-    weight: Optional[torch.Tensor]
+    weight: torch.Tensor | None
 
     def __init__(
         self,
         in_channels: int,
-        eps: Optional[float] = None,
+        eps: float | None = None,
         channelwise_rescale: bool = True,
-        device: Optional[torch.device] = None,
-        dtype: Optional[torch.dtype] = None,
+        device: torch.device | None = None,
+        dtype: torch.dtype | None = None,
     ) -> None:
         factory_kwargs = {"device": device, "dtype": dtype}
         super().__init__()
