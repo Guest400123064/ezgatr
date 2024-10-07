@@ -42,7 +42,7 @@ class MVOnlyGATrConfig:
         Must be even. This intermediate size should not be confused with the size
         of hidden representations throughout the network. It only refers to the
         hidden sizes used for the equivariant join and geometric product operations.
-    norm_eps : Optional[float], default to None
+    norm_eps : float, optional
         Small value to prevent division by zero in the normalization layer.
     norm_channelwise_rescale : bool, default to True
         Apply learnable channel-wise rescaling weights to the normalized multi-vector
@@ -153,7 +153,7 @@ class MVOnlyGATrBilinear(nn.Module):
         ----------
         x : torch.Tensor
             Batch of input hidden multi-vector representation tensor.
-        reference : Optional[torch.Tensor], default to None
+        reference : torch.Tensor, optional
             Reference tensor for the equivariant join operation.
 
         Returns
@@ -213,7 +213,7 @@ class MVOnlyGATrMLP(nn.Module):
         ----------
         x : torch.Tensor
             Batch of input hidden multi-vector representation tensor.
-        reference : Optional[torch.Tensor], default to None
+        reference : torch.Tensor, optional
             Reference tensor for the equivariant join operation.
 
         Returns
@@ -293,7 +293,7 @@ class MVOnlyGATrAttention(nn.Module):
         ----------
         x : torch.Tensor
             Batch of input hidden multi-vector representation tensor.
-        attn_mask : Optional[torch.Tensor], default to None
+        attn_mask : torch.Tensor, optional
             Attention mask tensor for the attention operation. Usually
             used if any specific attention constraints are needed within
             a single sequence, such as padding mask or for discriminating
