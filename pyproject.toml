@@ -20,7 +20,6 @@ numpy = "^2.1.1"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"
 hypothesis = "^6.112.2"
-isort = "^5.13.2"
 pre-commit = "^3.8.0"
 ruff = "^0.6.8"
 ipykernel = "^6.29.5"

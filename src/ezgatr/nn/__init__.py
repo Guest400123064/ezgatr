@@ -1,2 +1,3 @@
-from ezgatr.nn.modules.linear import EquiLinear
-from ezgatr.nn.modules.norm import EquiRMSNorm
+from __future__ import annotations
+
+from torch.nn.modules import *  # noqa: F403

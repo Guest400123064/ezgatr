@@ -169,7 +169,7 @@ class Pseudoscalar:
             *pseudoscalars.shape[:-1],
             15,
             dtype=pseudoscalars.dtype,
-            device=pseudoscalars.device
+            device=pseudoscalars.device,
         )
         return torch.cat([pad, pseudoscalars], dim=-1)
 
@@ -220,7 +220,7 @@ class Rotation:
             *quaternions.shape[:-1],
             16,
             dtype=quaternions.dtype,
-            device=quaternions.device
+            device=quaternions.device,
         )
 
         # Embedding into bivectors
@@ -273,7 +273,7 @@ class Rotation:
 
 
 class Translation:
-    """Interface for translation to and from PGA.
+    r"""Interface for translation to and from PGA.
 
     The equation can be found on page 55 of PGA4CS (equation 82) where translator
     is defined as,
