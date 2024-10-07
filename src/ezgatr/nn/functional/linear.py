@@ -127,7 +127,7 @@ def _compute_pin_equi_linear_basis(
     basis = []
     for elements in basis_elements:
         w = torch.zeros((16, 16))
-        for element in elements:
+        for element in elements:  # type: ignore[attr-defined]
             try:
                 i, j = element
                 w[i, j] = 1.0
