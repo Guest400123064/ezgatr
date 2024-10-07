@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass, field
 from functools import reduce
-from typing import Annotated, Any, Literal
+from typing import Any, Literal
 
 import torch
 import torch.nn as nn
@@ -70,7 +70,7 @@ class MVOnlyGATrConfig:
     norm_eps: float | None = None
     norm_channelwise_rescale: bool = True
 
-    gelu_approximate: str = "tanh"
+    gelu_approximate: Literal["none", "tanh"] = "tanh"
 
 
 class MVOnlyGATrEmbedding(nn.Module):
@@ -377,7 +377,7 @@ class MVOnlyGATrModel(nn.Module):
 
     config: MVOnlyGATrConfig
     embedding: MVOnlyGATrEmbedding
-    blocks: Annotated[list[MVOnlyGATrBlock], nn.ModuleList]  # type: ignore[assignment]
+    blocks: nn.ModuleList
     head: EquiLinear
 
     def __init__(self, config: MVOnlyGATrConfig) -> None:

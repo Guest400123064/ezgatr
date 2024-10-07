@@ -46,7 +46,7 @@ class EquiRMSNorm(nn.Module):
         self.reset_parameters()
 
     def reset_parameters(self) -> None:
-        if self.channelwise_rescale:
+        if self.channelwise_rescale and (self.weight is not None):
             nn.init.ones_(self.weight)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

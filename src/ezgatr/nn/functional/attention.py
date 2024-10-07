@@ -149,7 +149,7 @@ def equi_geometric_attention(
     key: torch.Tensor,
     value: torch.Tensor,
     kinds: dict[Literal["ipa", "daa"], dict[str, Any] | None],
-    weight: list[torch.Tensor] | None = None,
+    weight: list[torch.Tensor | float] | None = None,
     attn_mask: torch.Tensor | None = None,
     dropout_p: float = 0.0,
     is_causal: bool = False,
@@ -173,7 +173,7 @@ def equi_geometric_attention(
         to denote no additional parameters supplied. Available options are:
             - "ipa": Inner product attention
             - "daa": Distance-aware attention
-    weight : list[torch.Tensor], optional
+    weight : list[torch.Tensor | float], optional
         Weight tensor for the attention kinds. If not provided, the weights are
         set to 1.0 for all kinds to represent equal importance.
     attn_mask : torch.Tensor, optional
@@ -205,7 +205,7 @@ def equi_geometric_attention(
 
     qs, ks = [], []
     for (kind, kwargs), w in zip(kinds.items(), weight):
-        q, k = _ATTENTION_KIND_DISPATCH[kind](query, key, **(kwargs or {}))
+        q, k = _ATTENTION_KIND_DISPATCH[kind](query, key, **(kwargs or {}))  # type: ignore[operator]
         qs.append(_flatten_ck(q * w))
         ks.append(_flatten_ck(k))
 
