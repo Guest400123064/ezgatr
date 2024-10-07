@@ -1,4 +1,17 @@
 from . import (
     point as point,
     plane as plane,
+    pseudoscalar as pseudoscalar,
+    reflection as reflection,
+    rotation as rotation,
+    scalar as scalar,
 )
+
+__all__ = [
+    "point",
+    "plane",
+    "pseudoscalar",
+    "reflection",
+    "rotation",
+    "scalar",
+]
