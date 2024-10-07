@@ -223,7 +223,7 @@ def inner_product(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
 def equi_linear(
     x: torch.Tensor,
     weight: torch.Tensor,
-    bias: torch.Tensor = None,
+    bias: torch.Tensor | None = None,
     normalize_basis: bool = True,
 ) -> torch.Tensor:
     """Perform Pin-equivariant linear map defined by weight on input x.

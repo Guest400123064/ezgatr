@@ -1,5 +1,4 @@
 import math
-from typing import Optional
 
 import torch
 import torch.nn as nn
@@ -27,7 +26,7 @@ class EquiLinear(nn.Module):
     out_channels: int
     normalize_basis: bool
     weight: torch.Tensor
-    bias: Optional[torch.Tensor]
+    bias: torch.Tensor | None
 
     def __init__(
         self,

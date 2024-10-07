@@ -10,10 +10,12 @@ import torch.nn as nn
 from einops import rearrange
 
 from ezgatr.nn import EquiLinear, EquiRMSNorm
-from ezgatr.nn.functional.activation import scaler_gated_gelu
-from ezgatr.nn.functional.attention import equi_geometric_attention
-from ezgatr.nn.functional.dual import equi_join
-from ezgatr.nn.functional.linear import geometric_product
+from ezgatr.nn.functional import (
+    equi_geometric_attention,
+    equi_join,
+    geometric_product,
+    scaler_gated_gelu,
+)
 
 
 @dataclass
@@ -250,7 +252,7 @@ class MVOnlyGATrAttention(nn.Module):
 
     config: MVOnlyGATrConfig
     layer_norm: EquiRMSNorm
-    attn_mix: list[torch.Tensor]
+    attn_mix: dict[str, torch.Tensor]
     proj_qkv: EquiLinear
 
     def __init__(self, config: MVOnlyGATrConfig) -> None:
@@ -375,7 +377,7 @@ class MVOnlyGATrModel(nn.Module):
 
     config: MVOnlyGATrConfig
     embedding: MVOnlyGATrEmbedding
-    blocks: Annotated[list[MVOnlyGATrBlock], nn.ModuleList]
+    blocks: Annotated[list[MVOnlyGATrBlock], nn.ModuleList]  # type: ignore[assignment]
     head: EquiLinear
 
     def __init__(self, config: MVOnlyGATrConfig) -> None:

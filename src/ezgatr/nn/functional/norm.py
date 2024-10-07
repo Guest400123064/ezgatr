@@ -1,10 +1,10 @@
 import torch
 
-from ezgatr.nn.functional.linear import inner_product
+from ezgatr.nn.functional import inner_product
 
 
 def equi_rms_norm(
-    x: torch.Tensor, weight: torch.Tensor = None, eps: float = None
+    x: torch.Tensor, weight: torch.Tensor | None = None, eps: float | None = None
 ) -> torch.Tensor:
     """Compute PGA inner-induced RMS norm of multi-vectors.
 
@@ -28,11 +28,11 @@ def equi_rms_norm(
     ----------
     x : torch.Tensor
         Input multi-vectors with shape (..., n_channels, 16).
-    weight : torch.Tensor
+    weight : torch.Tensor, optional
         weight for re-scaling the normalized input. It can be both
         static or learnable, depending on how ``weight`` are initialized
         outside of the function.
-    eps : float
+    eps : float, optional
         Small value to prevent division by zero.
 
     Returns

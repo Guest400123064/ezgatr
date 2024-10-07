@@ -1,5 +1,5 @@
 import functools
-from typing import Any, Literal, Optional
+from typing import Any, Literal
 
 import torch
 import torch.nn.functional as F
@@ -60,7 +60,7 @@ def _compute_daa_qk_basis(
 
 
 def _linear_square_normalizer(
-    e123: torch.Tensor, eps: Optional[float] = None
+    e123: torch.Tensor, eps: float | None = None
 ) -> torch.Tensor:
     """Apply linear square normalization to the input tensor.
 
@@ -68,7 +68,7 @@ def _linear_square_normalizer(
     ----------
     e123 : torch.Tensor
         Coefficients corresponds to the ``e_123`` blade.
-    eps : Optional[float], default to None
+    eps : float, optional
         Small value to avoid division by zero.
 
     Returns
@@ -83,7 +83,7 @@ def _linear_square_normalizer(
 def compute_qk_for_daa(
     query: torch.Tensor,
     key: torch.Tensor,
-    eps: Optional[float] = None,
+    eps: float | None = None,
 ) -> tuple[torch.Tensor, torch.Tensor]:
     """Compute the query and key tensors for the distance-aware attention.
 
@@ -93,7 +93,7 @@ def compute_qk_for_daa(
         Query tensor with shape (B, H, T, qk_channels, 16).
     key : torch.Tensor
         Key tensor with shape (B, H, T, qk_channels, 16).
-    eps : Optional[float], default to None
+    eps : float, optional
         Small value to avoid division by zero used in the linear square normalizer.
 
     Returns
@@ -148,12 +148,12 @@ def equi_geometric_attention(
     query: torch.Tensor,
     key: torch.Tensor,
     value: torch.Tensor,
-    kinds: dict[Literal["ipa", "daa"], Optional[dict[str, Any]]],
-    weight: Optional[torch.Tensor] = None,
-    attn_mask: Optional[torch.Tensor] = None,
+    kinds: dict[Literal["ipa", "daa"], dict[str, Any] | None],
+    weight: torch.Tensor | None = None,
+    attn_mask: torch.Tensor | None = None,
     dropout_p: float = 0.0,
     is_causal: bool = False,
-    scale: Optional[float] = None,
+    scale: float | None = None,
 ) -> torch.Tensor:
     """Equivariant geometric attention.
 
@@ -165,7 +165,7 @@ def equi_geometric_attention(
         Key tensor with shape (B, H, T, qk_channels, 16).
     value : torch.Tensor
         Value tensor with shape (B, H, T, v_channels, 16).
-    kinds : dict[Literal["ipa", "daa"], dict[str, Any]]
+    kinds : dict[Literal["ipa", "daa"], dict[str, Any] | None]
         Kinds of similarity measures to consider in the attention calculation
         along with additional configuration/parameters sent to the corresponding
         query-key generating function. One should supply a dictionary mapping
@@ -173,16 +173,16 @@ def equi_geometric_attention(
         to denote no additional parameters supplied. Available options are:
             - "ipa": Inner product attention
             - "daa": Distance-aware attention
-    weight : Optional[list[torch.Tensor]], default to None
+    weight : list[torch.Tensor], optional
         Weight tensor for the attention kinds. If not provided, the weights are
         set to 1.0 for all kinds to represent equal importance.
-    attn_mask : Optional[torch.Tensor], default to None
+    attn_mask : torch.Tensor, optional
         Attention mask tensor.
     dropout_p : float, default to 0.0
         Dropout probability.
     is_causal : bool, default to False
         Whether to apply causal masking.
-    scale : Optional[float], default to None
+    scale : float, optional
         Scaling factor for the attention scores, overwriting the default scale
         determined by the hidden dimension.
 
