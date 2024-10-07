@@ -149,7 +149,7 @@ def equi_geometric_attention(
     key: torch.Tensor,
     value: torch.Tensor,
     kinds: dict[Literal["ipa", "daa"], dict[str, Any] | None],
-    weight: torch.Tensor | None = None,
+    weight: list[torch.Tensor] | None = None,
     attn_mask: torch.Tensor | None = None,
     dropout_p: float = 0.0,
     is_causal: bool = False,

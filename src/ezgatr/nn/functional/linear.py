@@ -282,7 +282,7 @@ def equi_linear(
 def dense_linear(
     x: torch.Tensor,
     weight: torch.Tensor,
-    bias: torch.Tensor = None,
+    bias: torch.Tensor | None = None,
 ) -> torch.Tensor:
     """Reduce multi-vectors with a linear map applied to scalar and ``e_0``.
 
@@ -296,7 +296,7 @@ def dense_linear(
         x and weight.
     weight : torch.Tensor with shape (out_channels, in_channels * 2)
         Coefficients for the scalar and ``e_0`` elements.
-    bias : torch.Tensor with shape (out_channels,)
+    bias : torch.Tensor with shape (out_channels,), optional
         Bias for the linear map.
 
     Returns

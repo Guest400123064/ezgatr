@@ -38,7 +38,7 @@ def dual(x: torch.Tensor) -> torch.Tensor:
 
 
 def equi_join(
-    x: torch.Tensor, y: torch.Tensor, reference: torch.Tensor = None
+    x: torch.Tensor, y: torch.Tensor, reference: torch.Tensor | None = None
 ) -> torch.Tensor:
     """Compute the equivariant join of two multi-vectors given the reference.
 
@@ -50,7 +50,7 @@ def equi_join(
         Multi-vectors with shape (..., 16).
     y : torch.Tensor
         Multi-vectors with shape (..., 16).
-    reference : torch.Tensor, default to None
+    reference : torch.Tensor, optional
         Multi-vectors with shape (..., 16).
 
     Returns

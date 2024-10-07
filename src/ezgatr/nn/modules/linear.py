@@ -34,8 +34,8 @@ class EquiLinear(nn.Module):
         out_channels: int,
         bias: bool = True,
         normalize_basis: bool = True,
-        device: torch.device = None,
-        dtype: torch.dtype = None,
+        device: torch.device | None = None,
+        dtype: torch.dtype | None = None,
     ) -> None:
         factory_kwargs = {"device": device, "dtype": dtype}
         super().__init__()
