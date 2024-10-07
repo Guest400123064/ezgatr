@@ -24,7 +24,7 @@ $ pip install -e .
 ```
 
 ## Usage
-The quick start example shown below demonstrates how to use EzGATr to build a equivariant network with one input/output channel (e.g., point cloud) and four hidden channels. The mock input data contains a batch of eight samples, each with 256 3D points embedded as multi-vectors.
+The quick start example shown below demonstrates how to use EzGATr to build a equivariant network with one input/output channel (e.g., a point cloud) and four hidden channels. The mock input data contains a batch of eight samples, each with 256 3D objects embedded as multi-vectors.
 
 ```python
 import torch
@@ -57,5 +57,4 @@ out = net(in_)
 ## Roadmap
 
 ## License
-
 EzGATr is distributed under the terms of the [MIT](https://opensource.org/licenses/MIT) license.
