@@ -15,7 +15,6 @@ def encode_pga(points: torch.Tensor) -> torch.Tensor:
         Multi-vectors with PGA representation; tensor of shape (..., 16).
     """
     ret = torch.zeros(*points.shape[:-1], 16, dtype=points.dtype, device=points.device)
-
     ret[..., 14] = 1.0
     ret[..., 13] = -points[..., 0]
     ret[..., 12] = points[..., 1]
@@ -39,7 +38,7 @@ def decode_pga(mvs: torch.Tensor, eps: float = 1e-6) -> torch.Tensor:
     eps : float, default to 1e-6
         Minimum value of the additional, un-physical component. Necessary to avoid
         exploding values or NaNs when this un-physical component of the homogeneous
-        coordinates becomes small.
+        coordinates becomes too close to zero.
 
     Returns
     -------
@@ -54,6 +53,7 @@ def decode_pga(mvs: torch.Tensor, eps: float = 1e-6) -> torch.Tensor:
         ],
         dim=-1,
     )
-    hom = torch.where(torch.abs(mvs[..., [14]]) > eps, mvs[..., [14]], eps)
+    hom = mvs[..., [14]]
+    hom = torch.where(hom.abs() > eps, hom, eps * hom.sign())
 
     return ret / hom
