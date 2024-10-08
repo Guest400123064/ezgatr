@@ -15,7 +15,7 @@ packages = [
 python = "^3.10"
 torch = "^2.4.1"
 einops = "^0.8.0"
-numpy = "^2.1.1"
+numpy = "<2.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"
@@ -28,6 +28,8 @@ bpython = "^0.24"
 pytest-cov = "^5.0.0"
 coverage = {extras = ["toml"], version = "^7.6.1"}
 mypy = "^1.11.2"
+numba = "^0.60.0"
+clifford = "^1.4.0"
 
 [build-system]
 requires = ["poetry-core"]
