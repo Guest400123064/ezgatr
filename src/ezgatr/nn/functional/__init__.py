@@ -7,15 +7,15 @@ from .linear import equi_linear, geometric_product, inner_product, outer_product
 from .norm import equi_rms_norm
 
 __all__ = [
-    "scaler_gated_gelu",
     "compute_qk_for_daa",
     "compute_qk_for_ipa",
-    "equi_geometric_attention",
     "dual",
+    "equi_geometric_attention",
     "equi_join",
     "equi_linear",
+    "equi_rms_norm",
     "geometric_product",
     "inner_product",
     "outer_product",
-    "equi_rms_norm",
+    "scaler_gated_gelu",
 ]
