@@ -1,4 +1,5 @@
 import functools
+from itertools import product
 
 import torch
 
@@ -18,6 +19,23 @@ def _compute_dualization(
         dtype=dtype,
     )
     return perm, sign
+
+
+@functools.lru_cache(maxsize=None, typed=True)
+def _compute_efficient_join_kernel(
+    device: torch.device, dtype: torch.dtype
+) -> torch.Tensor:
+    """Compute the kernel for efficient equivariant join computation."""
+
+    kernel = torch.zeros((16, 16, 16), device=device, dtype=dtype)
+    for i, j in product(range(16), repeat=2):
+        x = torch.zeros(16, device=device, dtype=dtype)
+        y = torch.zeros(16, device=device, dtype=dtype)
+
+        x[i] = y[j] = 1.0
+        kernel[:, i, j] = dual(outer_product(dual(x), dual(y)))
+
+    return kernel
 
 
 def dual(x: torch.Tensor) -> torch.Tensor:
@@ -58,7 +76,8 @@ def equi_join(
     torch.Tensor
         Equivariant join result multi-vectors with shape (..., 16).
     """
-    ret = dual(outer_product(dual(x), dual(y)))
+    kernel = _compute_efficient_join_kernel(x.device, x.dtype)
+    ret = torch.einsum("ijk, ...j, ...k -> ...i", kernel, x, y)
 
     if reference is not None:
         ret *= reference[..., [14]]
