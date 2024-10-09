@@ -2,7 +2,7 @@ import torch
 
 
 def encode_pga(pseudoscalars: torch.Tensor) -> torch.Tensor:
-    """Encode scalars into **the pseudoscalar dimension** of multi-vectors with PGA.
+    r"""Encode scalars into **the pseudoscalar dimension** of multi-vectors with PGA.
 
     This function **assumes that the scalar tensor has shape (..., 1)**
     and will pad the remaining 15 components with zeros.
@@ -27,7 +27,7 @@ def encode_pga(pseudoscalars: torch.Tensor) -> torch.Tensor:
 
 
 def decode_pga(mvs: torch.Tensor) -> torch.Tensor:
-    """Extract the pseudoscalar values from multi-vectors with PGA.
+    r"""Extract the pseudoscalar values from multi-vectors with PGA.
 
     This function do not automatically squeeze the last dimension when returning
     the scalar tensor.

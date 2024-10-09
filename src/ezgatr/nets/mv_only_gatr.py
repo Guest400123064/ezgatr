@@ -18,7 +18,7 @@ from ezgatr.nn.functional import (
 
 @dataclass
 class MVOnlyGATrConfig:
-    """Configuration class for the ``MVOnlyGATr`` model.
+    r"""Configuration class for the ``MVOnlyGATr`` model.
 
     Parameters
     ----------
@@ -72,7 +72,7 @@ class MVOnlyGATrConfig:
 
 
 class MVOnlyGATrEmbedding(nn.Module):
-    """Embedding layer to project input number of channels to hidden channels.
+    r"""Embedding layer to project input number of channels to hidden channels.
 
     This layer corresponds to the very first equivariant linear layer of the
     original design mentioned in the GATr paper.
@@ -105,7 +105,7 @@ class MVOnlyGATrEmbedding(nn.Module):
 
 
 class MVOnlyGATrBilinear(nn.Module):
-    """Implements the geometric bilinear sub-layer of the geometric MLP.
+    r"""Implements the geometric bilinear sub-layer of the geometric MLP.
 
     Geometric bilinear operation consists of geometric product and equivariant
     join operations. The results of two operations are concatenated along the
@@ -145,7 +145,7 @@ class MVOnlyGATrBilinear(nn.Module):
     def forward(
         self, x: torch.Tensor, reference: torch.Tensor | None = None
     ) -> torch.Tensor:
-        """Forward pass of the geometric bilinear sub-layer.
+        r"""Forward pass of the geometric bilinear sub-layer.
 
         Parameters
         ----------
@@ -168,7 +168,7 @@ class MVOnlyGATrBilinear(nn.Module):
 
 
 class MVOnlyGATrMLP(nn.Module):
-    """Geometric MLP block without scaler channels.
+    r"""Geometric MLP block without scaler channels.
 
     Here we fix the structure of the MLP block to be a single equivariant linear
     projection followed by a gated GELU activation function. In addition, the
@@ -205,7 +205,7 @@ class MVOnlyGATrMLP(nn.Module):
     def forward(
         self, x: torch.Tensor, reference: torch.Tensor | None = None
     ) -> torch.Tensor:
-        """Forward pass of the geometric MLP block.
+        r"""Forward pass of the geometric MLP block.
 
         Parameters
         ----------
@@ -230,7 +230,7 @@ class MVOnlyGATrMLP(nn.Module):
 
 
 class MVOnlyGATrAttention(nn.Module):
-    """Geometric attention block without scaler channels.
+    r"""Geometric attention block without scaler channels.
 
     The GATr attention calculation is slightly different from the original
     transformers implementation in that each head has the sample number of
@@ -285,7 +285,7 @@ class MVOnlyGATrAttention(nn.Module):
     def forward(
         self, x: torch.Tensor, attn_mask: torch.Tensor | None = None
     ) -> torch.Tensor:
-        """Forward pass of the geometric attention block.
+        r"""Forward pass of the geometric attention block.
 
         Parameters
         ----------
@@ -331,7 +331,7 @@ class MVOnlyGATrAttention(nn.Module):
 
 
 class MVOnlyGATrBlock(nn.Module):
-    """GATr block without scaler channels.
+    r"""GATr block without scaler channels.
 
     Parameters
     ----------
@@ -365,7 +365,7 @@ class MVOnlyGATrBlock(nn.Module):
 
 
 class MVOnlyGATrModel(nn.Module):
-    """Multi-Vector only GATr model.
+    r"""Multi-Vector only GATr model.
 
     Parameters
     ----------
@@ -391,7 +391,7 @@ class MVOnlyGATrModel(nn.Module):
         self.apply(self._init_params)
 
     def _init_params(self, module: nn.Module):
-        """Slight adjustment to Kaiming init by down-scaling the weights
+        r"""Slight adjustment to Kaiming init by down-scaling the weights
         by the number of encoder layers, following the GPT-2 paper.
 
         Parameters

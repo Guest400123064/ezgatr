@@ -10,7 +10,7 @@ from ezgatr.nn.functional.linear import outer_product
 def _compute_dualization(
     device: torch.device, dtype: torch.dtype
 ) -> tuple[torch.Tensor, torch.Tensor]:
-    """Compute the reversion index and sign flip for dualization."""
+    r"""Compute the reversion index and sign flip for dualization."""
 
     perm = torch.tensor(range(15, -1, -1), device=device)
     sign = torch.tensor(
@@ -25,7 +25,7 @@ def _compute_dualization(
 def _compute_efficient_join_kernel(
     device: torch.device, dtype: torch.dtype
 ) -> torch.Tensor:
-    """Compute the kernel for efficient equivariant join computation."""
+    r"""Compute the kernel for efficient equivariant join computation."""
 
     kernel = torch.zeros((16, 16, 16), device=device, dtype=dtype)
     for i, j in product(range(16), repeat=2):
@@ -39,7 +39,7 @@ def _compute_efficient_join_kernel(
 
 
 def dual(x: torch.Tensor) -> torch.Tensor:
-    """Compute the dual of the input multi-vector.
+    r"""Compute the dual of the input multi-vector.
 
     Parameters
     ----------
@@ -58,7 +58,7 @@ def dual(x: torch.Tensor) -> torch.Tensor:
 def equi_join(
     x: torch.Tensor, y: torch.Tensor, reference: torch.Tensor | None = None
 ) -> torch.Tensor:
-    """Compute the equivariant join of two multi-vectors given the reference.
+    r"""Compute the equivariant join of two multi-vectors given the reference.
 
     TODO: CURRENT IMPLEMENTATION IS NOT EFFICIENT.
 

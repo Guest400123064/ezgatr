@@ -5,7 +5,7 @@ from ezgatr.nn.functional.norm import equi_rms_norm
 
 
 class EquiRMSNorm(nn.Module):
-    """Applies PGA inner-induced RMS norm to a batch of multi-vectors.
+    r"""Applies PGA inner-induced RMS norm to a batch of multi-vectors.
 
     Parameters
     ----------

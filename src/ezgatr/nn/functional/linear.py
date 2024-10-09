@@ -19,7 +19,7 @@ _BASIS_CACHE: dict[str, dict[tuple[torch.device, torch.dtype], torch.Tensor]] = 
 def _load_bilinear_basis(
     kind: Literal["gp", "op"], device: torch.device, dtype: torch.dtype
 ) -> torch.Tensor:
-    """Load the bilinear basis for geometric product or outer product.
+    r"""Load the bilinear basis for geometric product or outer product.
 
     The bilinear basis is a 3D tensor with shape (16, 16, 16). One can
     understand the basis tensor by thinking of how the calculation of
@@ -69,7 +69,7 @@ def _load_bilinear_basis(
 
 @functools.lru_cache(maxsize=None, typed=True)
 def _compute_inner_product_selector(device: torch.device) -> torch.Tensor:
-    """Load the indices for PGA inner product to the device.
+    r"""Load the indices for PGA inner product to the device.
 
     PGA inner product operation exclude the coefficients corresponding to
     basis containing ``e_0``. The indices are hard-coded here. The reason
@@ -92,7 +92,7 @@ def _compute_inner_product_selector(device: torch.device) -> torch.Tensor:
 def _compute_pin_equi_linear_basis(
     device: torch.device, dtype: torch.dtype, normalize: bool = True
 ) -> torch.Tensor:
-    """Constructs basis elements for Pin(3, 0, 1)-equivariant linear maps
+    r"""Constructs basis elements for Pin(3, 0, 1)-equivariant linear maps
     between multi-vectors.
 
     Parameters
@@ -142,7 +142,7 @@ def _compute_pin_equi_linear_basis(
 
 
 def geometric_product(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
-    """Geometric product between two batches of multi-vectors.
+    r"""Geometric product between two batches of multi-vectors.
 
     The input tensors ``x`` and ``y`` are multi-vectors with shape (..., 16).
     where ``...`` dimensions can denote batches or batches plus channels.
@@ -168,7 +168,7 @@ def geometric_product(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
 
 
 def outer_product(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
-    """Outer product between two batches of multi-vectors.
+    r"""Outer product between two batches of multi-vectors.
 
     The input tensors ``x`` and ``y`` are multi-vectors with shape (..., 16).
     where ``...`` dimensions can denote batches or batches plus channels. When
@@ -193,7 +193,7 @@ def outer_product(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
 
 
 def inner_product(x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
-    """Compute the PGA inner product between two multi-vectors.
+    r"""Compute the PGA inner product between two multi-vectors.
 
     Similarly, the PGA inner product is calculated channel-wise (and batch-wise).
     No channel-mixing here.
@@ -224,7 +224,7 @@ def equi_linear(
     bias: torch.Tensor | None = None,
     normalize_basis: bool = True,
 ) -> torch.Tensor:
-    """Perform Pin-equivariant linear map defined by weight on input x.
+    r"""Perform Pin-equivariant linear map defined by weight on input x.
 
     One way to think of the equivariant linear map is a channel-wise
     "map-reduce", where the same weight (of one neuron) are applied to
@@ -282,7 +282,7 @@ def dense_linear(
     weight: torch.Tensor,
     bias: torch.Tensor | None = None,
 ) -> torch.Tensor:
-    """Reduce multi-vectors with a linear map applied to scalar and ``e_0``.
+    r"""Reduce multi-vectors with a linear map applied to scalar and ``e_0``.
 
     This operation is not equivariant. The output of this operation contains
     only scalars therefore **the blade dimension is squeezed**.

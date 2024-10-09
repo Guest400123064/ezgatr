@@ -6,7 +6,7 @@ from ezgatr.nn.functional import inner_product
 def equi_rms_norm(
     x: torch.Tensor, weight: torch.Tensor | None = None, eps: float | None = None
 ) -> torch.Tensor:
-    """Compute PGA inner-induced RMS norm of multi-vectors.
+    r"""Compute PGA inner-induced RMS norm of multi-vectors.
 
     Although the original GATr paper [2]_ named the normalization operation
     as E(3)-equivariant LayerNorm, we find the actual implementation more

@@ -10,7 +10,7 @@ from ezgatr.nn.functional.linear import _compute_inner_product_selector
 
 @functools.lru_cache(maxsize=None, typed=True)
 def _compute_tri_vector_selector(device: torch.device) -> torch.Tensor:
-    """Load the indices corresponds to tri-vectors to the device.
+    r"""Load the indices corresponds to tri-vectors to the device.
 
     Parameters
     ----------
@@ -28,7 +28,7 @@ def _compute_tri_vector_selector(device: torch.device) -> torch.Tensor:
 def _compute_daa_qk_basis(
     device: torch.device, dtype: torch.dtype
 ) -> tuple[torch.Tensor, torch.Tensor]:
-    """Compute basis queries and keys in the distance-aware attention.
+    r"""Compute basis queries and keys in the distance-aware attention.
 
     Parameters
     ----------
@@ -62,7 +62,7 @@ def _compute_daa_qk_basis(
 def _linear_square_normalizer(
     e123: torch.Tensor, eps: float | None = None
 ) -> torch.Tensor:
-    """Apply linear square normalization to the input tensor.
+    r"""Apply linear square normalization to the input tensor.
 
     Parameters
     ----------
@@ -85,7 +85,7 @@ def compute_qk_for_daa(
     key: torch.Tensor,
     eps: float | None = None,
 ) -> tuple[torch.Tensor, torch.Tensor]:
-    """Compute the query and key tensors for the distance-aware attention.
+    r"""Compute the query and key tensors for the distance-aware attention.
 
     Parameters
     ----------
@@ -115,7 +115,7 @@ def compute_qk_for_daa(
 def compute_qk_for_ipa(
     query: torch.Tensor, key: torch.Tensor
 ) -> tuple[torch.Tensor, torch.Tensor]:
-    """Compute the query and key tensors for the inner product attention.
+    r"""Compute the query and key tensors for the inner product attention.
 
     Parameters
     ----------
@@ -155,7 +155,7 @@ def equi_geometric_attention(
     is_causal: bool = False,
     scale: float | None = None,
 ) -> torch.Tensor:
-    """Equivariant geometric attention.
+    r"""Equivariant geometric attention.
 
     Parameters
     ----------

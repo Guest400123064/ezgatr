@@ -4,7 +4,7 @@ import torch
 
 
 def time_cuda_exec(n_exec: int = 1000, report_avg: bool = True):
-    """Time the execution of a function involving CUDA."""
+    r"""Time the execution of a function involving CUDA."""
 
     def _decorator(func):
         @functools.wraps(func)

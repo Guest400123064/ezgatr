@@ -4,7 +4,7 @@ from ezgatr.interfaces import plane
 
 
 def encode_pga(normals: torch.Tensor, positions: torch.Tensor) -> torch.Tensor:
-    """Encode reflection into multi-vectors with PGA.
+    r"""Encode reflection into multi-vectors with PGA.
 
     Plane serves as both the geometric object and the reflection operation in
     PGA. Therefore, we encode reflection over a plane as a plane itself.
@@ -25,7 +25,7 @@ def encode_pga(normals: torch.Tensor, positions: torch.Tensor) -> torch.Tensor:
 
 
 def decode_pga(mvs: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
-    """Extract normal and position vectors of the reflection plane with PGA.
+    r"""Extract normal and position vectors of the reflection plane with PGA.
 
     Parameters
     ----------

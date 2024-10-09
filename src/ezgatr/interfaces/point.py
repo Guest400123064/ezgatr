@@ -2,7 +2,7 @@ import torch
 
 
 def encode_pga(points: torch.Tensor) -> torch.Tensor:
-    """Encode 3D points into multi-vectors with PGA.
+    r"""Encode 3D points into multi-vectors with PGA.
 
     Parameters
     ----------
@@ -24,7 +24,7 @@ def encode_pga(points: torch.Tensor) -> torch.Tensor:
 
 
 def decode_pga(mvs: torch.Tensor, eps: float = 1e-6) -> torch.Tensor:
-    """Extract 3D points from multi-vectors with PGA.
+    r"""Extract 3D points from multi-vectors with PGA.
 
     One needs to divide the coordinates by the homogeneous coordinate to obtain
     the 3D points. In this case, to prevent numerical instability, we set a threshold

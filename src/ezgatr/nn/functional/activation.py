@@ -6,7 +6,7 @@ import torch
 def scaler_gated_gelu(
     x: torch.Tensor, approximate: Literal["none", "tanh"] = "tanh"
 ) -> torch.Tensor:
-    """Compute scaler-gated GeLU activation function.
+    r"""Compute scaler-gated GeLU activation function.
 
     Parameters
     ----------

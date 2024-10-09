@@ -5,7 +5,7 @@ from ezgatr.nn.functional.linear import geometric_product
 
 
 def encode_pga(normals: torch.Tensor, positions: torch.Tensor) -> torch.Tensor:
-    """Encode planes into multi-vectors with PGA.
+    r"""Encode planes into multi-vectors with PGA.
 
     Parameters
     ----------
@@ -31,7 +31,7 @@ def encode_pga(normals: torch.Tensor, positions: torch.Tensor) -> torch.Tensor:
 
 
 def decode_pga(mvs: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
-    """Extract normal and translation vectors from multi-vectors with PGA.
+    r"""Extract normal and translation vectors from multi-vectors with PGA.
 
     Note that the translation vectors associated with each plane is not unique.
     In this case, we use the PGA convention that ``e_0`` coefficients are the

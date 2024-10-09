@@ -2,7 +2,7 @@ import torch
 
 
 def encode_pga(positions: torch.Tensor) -> torch.Tensor:
-    """Encode translations into multi-vectors with PGA.
+    r"""Encode translations into multi-vectors with PGA.
 
     We use the convention that translations are represented by the ``xyz`` coordinates
     of the translation vectors in 3D Euclidean space, i.e., end positions.
