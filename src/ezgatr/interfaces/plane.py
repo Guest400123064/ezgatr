@@ -1,7 +1,7 @@
 import torch
 
 from ezgatr.interfaces import translation
-from ezgatr.nn.functional import geometric_product
+from ezgatr.nn.functional.linear import geometric_product
 
 
 def encode_pga(normals: torch.Tensor, positions: torch.Tensor) -> torch.Tensor:

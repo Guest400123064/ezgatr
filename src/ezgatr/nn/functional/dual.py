@@ -3,7 +3,7 @@ from itertools import product
 
 import torch
 
-from ezgatr.nn.functional import outer_product
+from ezgatr.nn.functional.linear import outer_product
 
 
 @functools.lru_cache(maxsize=None, typed=True)
