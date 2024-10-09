@@ -105,7 +105,7 @@ def compute_qk_for_daa(
     def _build_dist_vec(q_or_k, basis):
         sel = _compute_tri_vector_selector(query.device)
         tri = torch.index_select(q_or_k, -1, sel)
-        ret = tri * _linear_square_normalizer(tri[..., [3]])
+        ret = tri * _linear_square_normalizer(tri[..., [3]], eps=eps)
         return torch.einsum("ijk, ...i, ...j -> ...k", basis, ret, ret)
 
     bq, bk = _compute_daa_qk_basis(query.device, query.dtype)
@@ -212,7 +212,7 @@ def equi_geometric_attention(
     ret = F.scaled_dot_product_attention(
         torch.cat(qs, dim=-1),
         torch.cat(ks, dim=-1),
-        rearrange(value, "... c k -> ... (c k)"),
+        _flatten_ck(value),
         attn_mask=attn_mask,
         dropout_p=dropout_p,
         is_causal=is_causal,
