@@ -7,6 +7,21 @@ from einops import rearrange
 
 from ezgatr.nn.functional.linear import _compute_inner_product_selector
 
+GeometricQKVType = torch.Tensor | tuple[torch.Tensor, torch.Tensor]
+GeometricAttnKindType = Literal["ipa", "daa"]
+
+
+def _flatten_ck(mv: torch.Tensor) -> torch.Tensor:
+    """A shortcut to flatten the channel and blade dimensions."""
+
+    return rearrange(mv, "... c k -> ... (c k)")
+
+
+def _inflate_ck(mv: torch.Tensor) -> torch.Tensor:
+    """A shortcut to inflate the channel and blade dimensions."""
+
+    return rearrange(mv, "... (c k) -> ... c k", k=16)
+
 
 @functools.lru_cache(maxsize=None, typed=True)
 def _compute_tri_vector_selector(device: torch.device) -> torch.Tensor:
@@ -100,6 +115,7 @@ def compute_qk_for_daa(
     -------
     tuple[torch.Tensor, torch.Tensor]
         Query and key tensors for the equivariant distance-aware attention.
+        Blade dimensions are **NOT** flattened.
     """
 
     def _build_dist_vec(q_or_k, basis):
@@ -127,8 +143,8 @@ def compute_qk_for_ipa(
     Returns
     -------
     tuple[torch.Tensor, torch.Tensor]
-        Query and key tensors for the equivariant inner product attention
-        with the channel-blade dimensions flattened.
+        Query and key tensors for the equivariant inner product attention.
+        Blade dimensions are **NOT** flattened.
     """
 
     def _build_inner_vec(q_or_k):
@@ -145,10 +161,10 @@ _ATTENTION_KIND_DISPATCH = {
 
 
 def equi_geometric_attention(
-    query: torch.Tensor,
-    key: torch.Tensor,
-    value: torch.Tensor,
-    kinds: dict[Literal["ipa", "daa"], dict[str, Any] | None],
+    query: GeometricQKVType,
+    key: GeometricQKVType,
+    value: GeometricQKVType,
+    kinds: dict[GeometricAttnKindType, dict[str, Any] | None],
     weight: list[torch.Tensor | float] | None = None,
     attn_mask: torch.Tensor | None = None,
     dropout_p: float = 0.0,
@@ -159,23 +175,31 @@ def equi_geometric_attention(
 
     Parameters
     ----------
-    query : torch.Tensor
-        Query tensor with shape (B, H, T, qk_channels, 16).
-    key : torch.Tensor
-        Key tensor with shape (B, H, T, qk_channels, 16).
-    value : torch.Tensor
-        Value tensor with shape (B, H, T, v_channels, 16).
-    kinds : dict[Literal["ipa", "daa"], dict[str, Any] | None]
+    query : GeometricQKVType
+        Multi-vector query tensor with shape (B, H, T, qk_channels, 16). If
+        scalar channel tensors are supplied, they should be included in a tuple
+        with the multi-vector tensors.
+    key : GeometricQKVType
+        Multi-vector key tensor with shape (B, H, T, qk_channels, 16). If
+        scalar channel tensors are supplied, they should be included in a tuple
+        with the multi-vector tensors.
+    value : GeometricQKVType
+        Multi-vector value tensor with shape (B, H, T, qk_channels, 16). If
+        scalar channel tensors are supplied, they should be included in a tuple
+        with the multi-vector tensors.
+    kinds : dict[GeometricAttnKindType, dict[str, Any] | None]
         Kinds of similarity measures to consider in the attention calculation
         along with additional configuration/parameters sent to the corresponding
         query-key generating function. One should supply a dictionary mapping
-        from kind to parameters in addition to query and key tensors. Use ``None``
-        to denote no additional parameters supplied. Available options are:
+        from the kind to parameters in addition to query and key tensors. Use
+        ``None`` to denote no additional parameters supplied. Available options:
             - "ipa": Inner product attention
             - "daa": Distance-aware attention
     weight : list[torch.Tensor | float], optional
         Weight tensor for the attention kinds. If not provided, the weights are
-        set to 1.0 for all kinds to represent equal importance.
+        set to 1.0 for all kinds to represent equal importance. **Note that the
+        weight tensors are NOT applied to the scalar inputs (if provided).** If
+        scalar channel tensors are supplied, weights are fixed to 1.0.
     attn_mask : torch.Tensor, optional
         Attention mask tensor.
     dropout_p : float, default to 0.0
@@ -191,19 +215,44 @@ def equi_geometric_attention(
     torch.Tensor
         Output tensor with shape (B, H, T, v_channels, 16).
     """
+    qs: list[torch.Tensor] = []
+    ks: list[torch.Tensor] = []
 
-    def _flatten_ck(mv):
-        return rearrange(mv, "... c k -> ... (c k)")
+    if isinstance(query, tuple):
+        try:
+            (query, key, value), (query_scl, key_scl, value_scl) = zip(
+                query, key, value
+            )
+        except ValueError:
+            raise ValueError(
+                "Error unpacking the query, key, and value tensors. "
+                "Please make sure the query, key, and value tensors are ALL supplied as tuples "
+                "of the form (multi-vectors, scalars) if scalar channel presents."
+            )
 
+        # We can safely append the scalar channel tensors to the list before multi-vector
+        # channel tensors, as all similarities will be condensed by dot-product, i.e., the
+        # order of the channels does not matter as long as query-key correspondence is kept.
+        qs.append(query_scl)
+        ks.append(key_scl)
+
+        # Save the index for the scalar channel tensors to separate them from the multi-vector
+        # channel tensors after the attention calculation.
+        value = torch.cat([_flatten_ck(value), value_scl], dim=-1)
+        index_scl = -value_scl.shape[-1]
+    else:
+        value = _flatten_ck(value)
+        index_scl = None
+
+    # Weights are only applied to the multi-vector channel tensors even if
+    # scalar channel tensors are supplied. The scalar channel weights would
+    # be redundant because other weights can adjust themselves accordingly.
     weight = weight or [1.0] * len(kinds)
     if len(kinds.keys()) != len(weight):
-        msg = (
-            "The length of the kinds and weight must be the same. "
-            f"Got {len(kinds)} kinds and {len(weight)} weights."
+        raise ValueError(
+            f"The length of the kinds and weight must be the same. Got {len(kinds)} "
+            f"kinds and {len(weight)} weights."
         )
-        raise ValueError(msg)
-
-    qs, ks = [], []
     for (kind, kwargs), w in zip(kinds.items(), weight):
         q, k = _ATTENTION_KIND_DISPATCH[kind](query, key, **(kwargs or {}))  # type: ignore[operator]
         qs.append(_flatten_ck(q * w))
@@ -212,10 +261,12 @@ def equi_geometric_attention(
     ret = F.scaled_dot_product_attention(
         torch.cat(qs, dim=-1),
         torch.cat(ks, dim=-1),
-        _flatten_ck(value),
+        value,
         attn_mask=attn_mask,
         dropout_p=dropout_p,
         is_causal=is_causal,
         scale=scale,
     )
-    return rearrange(ret, "... (c k) -> ... c k", k=16)
+    if index_scl is not None:
+        return _inflate_ck(ret[..., :index_scl]), ret[..., index_scl:]
+    return _inflate_ck(ret)
