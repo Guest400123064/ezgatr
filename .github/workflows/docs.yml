@@ -30,10 +30,10 @@ jobs:
       # ADJUST THIS: build your documentation into docs/.
       # We use a custom build script for pdoc itself, ideally you just run `pdoc -o docs/ ...` here.
       - run: |
-            pdoc src/ezgatr \
-                -o docs \
-                -t docs/theme \
-                --docformat numpy
+          pdoc src/ezgatr \
+            -o docs \
+            -t docs/theme \
+            --docformat numpy
 
       - uses: actions/upload-pages-artifact@v3
         with:

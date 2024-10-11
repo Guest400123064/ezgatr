@@ -8,9 +8,11 @@
 </html>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python 3.10](https://img.shields.io/badge/python-%203.10%20|%203.11%20|%203.12-blue.svg)](https://www.python.org/downloads/release/python-3100/)
+[![test](https://github.com/Guest400123064/ezgatr/actions/workflows/test.yml/badge.svg)](https://github.com/Guest400123064/ezgatr/actions/workflows/test.yml)
+[![codecov](https://codecov.io/gh/Guest400123064/ezgatr/graph/badge.svg?token=IGRIRBHZ3U)](https://codecov.io/gh/Guest400123064/ezgatr)
 ![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)
 [![Website](https://img.shields.io/website?label=documentation&up_message=online&url=https%3A%2F%2Fguest400123064.github.io/ezgatr)](https://guest400123064.github.io/ezgatr/ezgatr.html)
+[![Python 3.10](https://img.shields.io/badge/python-%203.10%20|%203.11%20|%203.12-blue.svg)](https://www.python.org/downloads/release/python-3100/)
 
 ## What is EzGATr?
 **EzGATr** (Easy Geometric Algebra Transformer) intends to be a simple-to-use and lightweight Python library for building 3D [Geometric Algebra Transformers (GATr)](https://arxiv.org/abs/2305.18415). It is a collection of operators, modules, utilities, etc. build on top of [PyTorch](https://pytorch.org/). In addition, EzGATr also seeks to bridge the gap between the mathematical formulations and corresponding implementations through extensive documentation and explanations to facilitate learning and potential future optimizations.
