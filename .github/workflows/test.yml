@@ -42,6 +42,7 @@ jobs:
       run: |
         poetry install --with dev
         poetry run coverage run -m pytest
+        poetry run coverage combine
         poetry run coverage xml
 
     - name: Upload coverage reports to Codecov
