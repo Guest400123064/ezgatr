@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import functools
-from typing import Any, Literal
+from typing import Any, Literal, Union
 
 import torch
 import torch.nn.functional as F
@@ -9,7 +9,7 @@ from einops import rearrange
 
 from ezgatr.nn.functional.linear import _compute_inner_product_selector
 
-GeometricQKVType = torch.Tensor | tuple[torch.Tensor, torch.Tensor]
+GeometricQKVType = Union[torch.Tensor, tuple[torch.Tensor, torch.Tensor]]
 GeometricAttnKindType = Literal["ipa", "daa"]
 
 
