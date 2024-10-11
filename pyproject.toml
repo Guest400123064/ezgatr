@@ -36,11 +36,6 @@ clifford = "^1.4.0"
 pdoc = "^14.7.0"
 
 
-[[tool.poetry.source]]
-name = "ezgatr"
-url = "https://guest400123064.github.io/ezgatr/"
-priority = "primary"
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
