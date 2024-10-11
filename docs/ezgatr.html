@@ -17,10 +17,18 @@
         <label id="navtoggle" for="togglestate" class="pdoc-button"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke-linecap='round' stroke="currentColor" stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg></label>
         <input id="togglestate" type="checkbox" aria-hidden="true" tabindex="-1">
         <div>
-            <img src="https://raw.githubusercontent.com/Guest400123064/ezgatr/refs/heads/main/docs/images/ezgatr_logo.png" class="logo" alt="project logo"/>
 
             <input type="search" placeholder="Search..." role="searchbox" aria-label="search"
                    pattern=".+" required>
+
+            <h2>Contents</h2>
+            <ul>
+  <li><a href="#what-is-ezgatr">What is EzGATr?</a></li>
+  <li><a href="#installation">Installation</a></li>
+  <li><a href="#usage">Usage</a></li>
+  <li><a href="#api-references">API References</a></li>
+  <li><a href="#license">License</a></li>
+</ul>
 
 
             <h2>Submodules</h2>
@@ -45,8 +53,91 @@
                     <h1 class="modulename">
 ezgatr    </h1>
 
+                        <div class="docstring"><html>
+    <h1 align="center">
+      <img src="https://raw.githubusercontent.com/Guest400123064/ezgatr/refs/heads/main/docs/images/ezgatr_logo.png" width="256"/>
+    </h1>
+    <h3 align="center">
+      Geometric Algebra Transformer Made Easy
+    </h3>
+</html>
+
+<p><a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT" /></a>
+<a href="https://www.python.org/downloads/release/python-3100/"><img src="https://img.shields.io/badge/python-%203.10%20|%203.11%20|%203.12-blue.svg" alt="Python 3.10" /></a>
+<img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json" alt="Ruff" />
+<a href="https://guest400123064.github.io/ezgatr/ezgatr.html"><img src="https://img.shields.io/website?label=documentation&up_message=online&url=https%3A%2F%2Fguest400123064.github.io/ezgatr" alt="Website" /></a></p>
+
+<h2 id="what-is-ezgatr">What is EzGATr?</h2>
+
+<p><strong>EzGATr</strong> (Easy Geometric Algebra Transformer) intends to be a simple-to-use and lightweight Python library for building 3D <a href="https://arxiv.org/abs/2305.18415">Geometric Algebra Transformers (GATr)</a>. It is a collection of operators, modules, utilities, etc. build on top of <a href="https://pytorch.org/">PyTorch</a>. In addition, EzGATr also seeks to bridge the gap between the mathematical formulations and corresponding implementations through extensive documentation and explanations to facilitate learning and potential future optimizations.</p>
+
+<h2 id="installation">Installation</h2>
+
+<p>EzGATr is currently in development and not yet available on PyPI. To install it, you can clone the repository and install it using <code>pip</code>. Use the <code>-e</code> flag to install it in editable mode for quick changes.</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code>$<span class="w"> </span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/Guest400123064/ezgatr.git
+$<span class="w"> </span><span class="nb">cd</span><span class="w"> </span>ezgatr
+$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</code></pre>
+</div>
+
+<h2 id="usage">Usage</h2>
+
+<p>The quick start example shown below demonstrates how to use EzGATr to build a equivariant network with one input/output channel (e.g., a point cloud) and four hidden channels. The mock input data contains a batch of eight samples, each with 256 3D objects embedded as multi-vectors.</p>
+
+<div class="pdoc-code codehilite">
+<pre><span></span><code><span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+
+<span class="kn">from</span> <span class="nn"><a href="ezgatr/nn.html">ezgatr.nn</a></span> <span class="kn">import</span> <span class="n">EquiLinear</span>
+<span class="kn">from</span> <span class="nn"><a href="ezgatr/nn/functional.html">ezgatr.nn.functional</a></span> <span class="kn">import</span> <span class="n">scaler_gated_gelu</span>
 
 
+<span class="k">class</span> <span class="nc">SimpleNet</span><span class="p">(</span><span class="n">nn</span><span class="o">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">SimpleNet</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc1</span> <span class="o">=</span> <span class="n">EquiLinear</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fc2</span> <span class="o">=</span> <span class="n">EquiLinear</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">scaler_gated_gelu</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fc2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">x</span>
+
+
+<span class="n">net</span> <span class="o">=</span> <span class="n">SimpleNet</span><span class="p">()</span>
+<span class="n">in_</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+<span class="n">out</span> <span class="o">=</span> <span class="n">net</span><span class="p">(</span><span class="n">in_</span><span class="p">)</span>
+</code></pre>
+</div>
+
+<p>One can refer to <a href="src/ezgatr/nets/mv_only_gatr.py">this example</a> for how to build a full-fledged GATr model with EzGATr, involving equivariant geometric attention and geometric MLP.</p>
+
+<h2 id="api-references">API References</h2>
+
+<p>The complete API references for EzGATr can be found <a href="https://guest400123064.github.io/ezgatr/ezgatr.html">here</a>. TL;DR, the package is organized as follows:</p>
+
+<ul>
+<li><code><a href="ezgatr/nn.html">ezgatr.nn</a></code>: Contains the core modules and layers for building GATr models. It is organized similarly to PyTorch's <code>torch.nn</code> package, where the functional submodule contains lower-level operators and transformations.</li>
+<li><code><a href="ezgatr/interfaces.html">ezgatr.interfaces</a></code>: Contains the utility functions that help encode and decode 3D objects to and from multi-vectors.</li>
+<li><code><a href="ezgatr/nets.html">ezgatr.nets</a></code>: Contains off-of-the-shelf networks built with EzGATr building blocks. It can also be used as references for building custom networks with EzGATr.</li>
+</ul>
+
+<h2 id="license">License</h2>
+
+<p>EzGATr is distributed under the terms of the <a href="https://opensource.org/licenses/MIT">MIT</a> license.</p>
+</div>
+
+                        <input id="mod-ezgatr-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+
+                        <label class="view-source-button" for="mod-ezgatr-view-source"><span>View Source</span></label>
+
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">1</span></a><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">2</span></a><span class="sd">.. include:: ../../README.md</span>
+</span><span id="L-3"><a href="#L-3"><span class="linenos">3</span></a><span class="sd">&quot;&quot;&quot;</span>
+</span></pre></div>
 
 
             </section>

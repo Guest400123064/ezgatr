@@ -33,8 +33,7 @@ jobs:
             pdoc src/ezgatr \
                 -o docs \
                 -t docs/theme \
-                --docformat numpy \
-                --logo "https://raw.githubusercontent.com/Guest400123064/ezgatr/refs/heads/main/docs/images/ezgatr_logo.png"
+                --docformat numpy
 
       - uses: actions/upload-pages-artifact@v3
         with:

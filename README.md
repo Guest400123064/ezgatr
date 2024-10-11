@@ -1,6 +1,6 @@
 <html>
     <h1 align="center">
-      <img src="./docs/images/ezgatr_logo.png" width="256"/>
+      <img src="https://raw.githubusercontent.com/Guest400123064/ezgatr/refs/heads/main/docs/images/ezgatr_logo.png" width="256"/>
     </h1>
     <h3 align="center">
       Geometric Algebra Transformer Made Easy
