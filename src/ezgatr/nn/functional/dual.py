@@ -60,8 +60,6 @@ def equi_join(
 ) -> torch.Tensor:
     r"""Compute the equivariant join of two multi-vectors given the reference.
 
-    TODO: CURRENT IMPLEMENTATION IS NOT EFFICIENT.
-
     Parameters
     ----------
     x : torch.Tensor
