@@ -15,6 +15,7 @@
 [![Website](https://img.shields.io/website?label=documentation&up_message=online&url=https%3A%2F%2Fguest400123064.github.io/ezgatr)](https://guest400123064.github.io/ezgatr/ezgatr.html)
 [![PyPI](https://img.shields.io/pypi/v/ezgatr)](https://pypi.org/project/ezgatr/)
 [![Python 3.10](https://img.shields.io/badge/python-%203.9%20|%203.10%20|%203.11-blue.svg)](https://www.python.org/downloads/release/python-3100/)
+[![DOI](https://zenodo.org/badge/836505200.svg)](https://doi.org/10.5281/zenodo.13920438)
 
 ## What is EzGATr?
 **EzGATr** (Easy Geometric Algebra Transformer) intends to be a simple-to-use and lightweight Python library for building 3D [Geometric Algebra Transformers (GATr)](https://arxiv.org/abs/2305.18415). It is a collection of operators, modules, utilities, etc. build on top of [PyTorch](https://pytorch.org/). In addition, EzGATr also seeks to bridge the gap between the mathematical formulations and corresponding implementations through extensive documentation and explanations to facilitate learning and potential future optimizations.
