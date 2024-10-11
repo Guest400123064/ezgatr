@@ -53,7 +53,7 @@ in_ = torch.randn(8, 256, 1, 16)
 out = net(in_)
 ```
 
-One can refer to [this example](src/ezgatr/nets/mv_only_gatr.py) for how to build a full-fledged GATr model with EzGATr, involving equivariant geometric attention and geometric MLP.
+One can refer to [this example](https://github.com/Guest400123064/ezgatr/blob/main/src/ezgatr/nets/mv_only_gatr.py) for how to build a full-fledged GATr model with EzGATr, involving equivariant geometric attention and geometric MLP.
 
 ## API References
 The complete API references for EzGATr can be found [here](https://guest400123064.github.io/ezgatr/ezgatr.html). TL;DR, the package is organized as follows:
