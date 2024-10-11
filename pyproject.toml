@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ezgatr"
-version = "0.1.0"
+version = "0.1.0-alpha"
 description = ""
 authors = [
     "guest400123064 <wangy49@alumni.upenn.edu>",
@@ -34,6 +34,12 @@ clifford = "^1.4.0"
 
 [tool.poetry.group.docs.dependencies]
 pdoc = "^14.7.0"
+
+
+[[tool.poetry.source]]
+name = "ezgatr"
+url = "https://guest400123064.github.io/ezgatr/"
+priority = "primary"
 
 [build-system]
 requires = ["poetry-core"]
