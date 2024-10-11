@@ -7,7 +7,7 @@ from clifford import pga
 def mv_to_tensor(
     mvs: list[cf.MultiVector], batch_dims: tuple[int] | None = None
 ) -> torch.Tensor:
-    """Convert a list of multi-vectors to a batched tensor.
+    r"""Convert a list of multi-vectors to a batched tensor.
 
     Parameters
     ----------
@@ -35,7 +35,7 @@ def mv_to_tensor(
 def make_random_clifford_mvs(
     batch_dims: tuple[int] | None = None, rng: int | None = None
 ) -> list[cf.MultiVector]:
-    """Generate batches of random multi-vectors for testing.
+    r"""Generate batches of random multi-vectors for testing.
 
     Parameters
     ----------
