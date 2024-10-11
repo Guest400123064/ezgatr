@@ -178,15 +178,18 @@ def equi_geometric_attention(
     query : GeometricQKVType
         Multi-vector query tensor with shape (B, H, T, qk_channels, 16). If
         scalar channel tensors are supplied, they should be included in a tuple
-        with the multi-vector tensors.
+        with the multi-vector tensors. The scalar channel tensors should have
+        shape (B, H, T, qk_scalar_dim).
     key : GeometricQKVType
         Multi-vector key tensor with shape (B, H, T, qk_channels, 16). If
         scalar channel tensors are supplied, they should be included in a tuple
-        with the multi-vector tensors.
+        with the multi-vector tensors. The scalar channel tensors should have
+        shape (B, H, T, qk_scalar_dim).
     value : GeometricQKVType
         Multi-vector value tensor with shape (B, H, T, qk_channels, 16). If
         scalar channel tensors are supplied, they should be included in a tuple
-        with the multi-vector tensors.
+        with the multi-vector tensors. The scalar channel tensors should have
+        shape (B, H, T, v_scalar_dim).
     kinds : dict[GeometricAttnKindType, dict[str, Any] | None]
         Kinds of similarity measures to consider in the attention calculation
         along with additional configuration/parameters sent to the corresponding
@@ -212,8 +215,10 @@ def equi_geometric_attention(
 
     Returns
     -------
-    torch.Tensor
-        Output tensor with shape (B, H, T, v_channels, 16).
+    torch.Tensor | tuple[torch.Tensor, torch.Tensor]
+        Output tensor with shape (B, H, T, v_channels, 16). Return a tuple with
+        the second element being the scalar channel tensor if scalar channel
+        tensors are supplied, shape of (B, H, T, v_scalar_dim).
     """
     qs: list[torch.Tensor] = []
     ks: list[torch.Tensor] = []

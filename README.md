@@ -65,5 +65,35 @@ The complete API references for EzGATr can be found [here](https://guest40012306
 * `ezgatr.interfaces`: Contains the utility functions that help encode and decode 3D objects to and from multi-vectors.
 * `ezgatr.nets`: Contains off-of-the-shelf networks built with EzGATr building blocks. It can also be used as references for building custom networks with EzGATr.
 
+## Citation and Authors
+If you find EzGATr useful in your research, please consider citing it using the following BibTeX entry:
+
+```bibtex
+@misc{ezgatr
+  author = {EzGATr contributors},
+  title = {EzGATr: Geometric Algebra Transformer Made Easy},
+  year = {2024},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://guest400123064.github.io/ezgatr/}},
+}
+```
+
+EzGATr leveraged the work from GATr ([official GitHub repository](https://github.com/Qualcomm-AI-research/geometric-algebra-transformer/tree/main)) by Johann Brehmer, Pim de Haan, Sönke Behrends, and Taco Cohen, published at NeurIPS 2023. Please consider citing their work as well.
+
+```bibtex
+@inproceedings{NEURIPS2023_6f6dd92b,
+  author = {Brehmer, Johann and de Haan, Pim and Behrends, S\"{o}nke and Cohen, Taco S},
+  booktitle = {Advances in Neural Information Processing Systems},
+  editor = {A. Oh and T. Naumann and A. Globerson and K. Saenko and M. Hardt and S. Levine},
+  pages = {35472--35496},
+  publisher = {Curran Associates, Inc.},
+  title = {Geometric Algebra Transformer},
+  url = {https://proceedings.neurips.cc/paper_files/paper/2023/file/6f6dd92b03ff9be7468a6104611c9187-Paper-Conference.pdf},
+  volume = {36},
+  year = {2023}
+}
+```
+
 ## License
 EzGATr is distributed under the terms of the [MIT](https://opensource.org/licenses/MIT) license.
