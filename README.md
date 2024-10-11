@@ -11,6 +11,7 @@
 [![test](https://github.com/Guest400123064/ezgatr/actions/workflows/test.yml/badge.svg)](https://github.com/Guest400123064/ezgatr/actions/workflows/test.yml)
 [![codecov](https://codecov.io/gh/Guest400123064/ezgatr/graph/badge.svg?token=IGRIRBHZ3U)](https://codecov.io/gh/Guest400123064/ezgatr)
 ![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)
+[![types - Mypy](https://img.shields.io/badge/types-Mypy-blue.svg)](https://github.com/python/mypy)
 [![Website](https://img.shields.io/website?label=documentation&up_message=online&url=https%3A%2F%2Fguest400123064.github.io/ezgatr)](https://guest400123064.github.io/ezgatr/ezgatr.html)
 [![Python 3.10](https://img.shields.io/badge/python-%203.10%20|%203.11%20|%203.12-blue.svg)](https://www.python.org/downloads/release/python-3100/)
 
