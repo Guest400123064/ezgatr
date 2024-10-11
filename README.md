@@ -70,7 +70,7 @@ If you find EzGATr useful in your research, please consider citing it using the 
 
 ```bibtex
 @misc{ezgatr2024,
-  author = {Yuxuan Wang, Xiatao, Sun},
+  author = {Yuxuan Wang, Xiatao Sun},
   title = {EzGATr: Geometric Algebra Transformer Made Easy},
   year = 2024,
   publisher = {Zenodo},
