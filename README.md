@@ -69,13 +69,14 @@ The complete API references for EzGATr can be found [here](https://guest40012306
 If you find EzGATr useful in your research, please consider citing it using the following BibTeX entry:
 
 ```bibtex
-@misc{ezgatr
-  author = {EzGATr contributors},
+@misc{ezgatr2024,
+  author = {Yuxuan Wang, Xiatao, Sun},
   title = {EzGATr: Geometric Algebra Transformer Made Easy},
-  year = {2024},
-  publisher = {GitHub},
-  journal = {GitHub repository},
-  howpublished = {\url{https://guest400123064.github.io/ezgatr/}},
+  year = 2024,
+  publisher = {Zenodo},
+  version = {v0.1.0-alpha},
+  doi = {10.5281/zenodo.13920438},
+  url = {https://doi.org/10.5281/zenodo.13920438}
 }
 ```
 
