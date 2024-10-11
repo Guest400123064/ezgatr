@@ -33,12 +33,12 @@ def _compute_efficient_join_kernel(
         y = torch.zeros(16, device=device, dtype=dtype)
 
         x[i] = y[j] = 1.0
-        kernel[:, i, j] = dual(outer_product(dual(x), dual(y)))
+        kernel[:, i, j] = equi_dual(outer_product(equi_dual(x), equi_dual(y)))
 
     return kernel
 
 
-def dual(x: torch.Tensor) -> torch.Tensor:
+def equi_dual(x: torch.Tensor) -> torch.Tensor:
     r"""Compute the dual of the input multi-vector.
 
     Parameters

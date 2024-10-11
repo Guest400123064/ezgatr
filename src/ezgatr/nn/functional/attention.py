@@ -193,8 +193,8 @@ def equi_geometric_attention(
         query-key generating function. One should supply a dictionary mapping
         from the kind to parameters in addition to query and key tensors. Use
         ``None`` to denote no additional parameters supplied. Available options:
-            - "ipa": Inner product attention
-            - "daa": Distance-aware attention
+        - "ipa": Inner product attention
+        - "daa": Distance-aware attention
     weight : list[torch.Tensor | float], optional
         Weight tensor for the attention kinds. If not provided, the weights are
         set to 1.0 for all kinds to represent equal importance. **Note that the
