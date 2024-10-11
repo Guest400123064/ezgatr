@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import torch
 
 from ezgatr.nn.functional import inner_product

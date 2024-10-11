@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import functools
 from typing import Any, Literal
 
@@ -170,7 +172,7 @@ def equi_geometric_attention(
     dropout_p: float = 0.0,
     is_causal: bool = False,
     scale: float | None = None,
-) -> torch.Tensor:
+) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
     r"""Equivariant geometric attention.
 
     Parameters
