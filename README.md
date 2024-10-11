@@ -53,9 +53,14 @@ in_ = torch.randn(8, 256, 1, 16)
 out = net(in_)
 ```
 
-## Documentation
+One can refer to [this example](src/ezgatr/nets/mv_only_gatr.py) for how to build a full-fledged GATr model with EzGATr, involving equivariant geometric attention and geometric MLP.
 
-## Roadmap
+## API References
+The complete API references for EzGATr can be found [here](https://guest400123064.github.io/ezgatr/ezgatr.html). TL;DR, the package is organized as follows:
+
+* `ezgatr.nn`: Contains the core modules and layers for building GATr models. It is organized similarly to PyTorch's `torch.nn` package, where the functional submodule contains lower-level operators and transformations.
+* `ezgatr.interfaces`: Contains the utility functions that help encode and decode 3D objects to and from multi-vectors.
+* `ezgatr.nets`: Contains off-of-the-shelf networks built with EzGATr building blocks. It can also be used as references for building custom networks with EzGATr.
 
 ## License
 EzGATr is distributed under the terms of the [MIT](https://opensource.org/licenses/MIT) license.
