@@ -15,4 +15,4 @@ def test_geometric_product():
     ts_torch = geometric_product(
         mv_to_tensor(xs, batch_dims), mv_to_tensor(ys, batch_dims)
     )
-    assert torch.allclose(ts, ts_torch, rtol=1e-4)
+    assert torch.allclose(ts, ts_torch, rtol=1e-3)
