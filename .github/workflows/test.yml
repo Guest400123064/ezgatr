@@ -35,8 +35,8 @@ jobs:
     - name: Install Poetry
       run: pip install --upgrade poetry
 
-    - name: Separate installation of llvimlite
-      run: pip install "llvimlite==0.41.1"
+    - name: Separate installation of llvmlite
+      run: pip install "llvmlite==0.41.1"
 
     - name: Run tests
       run: |
