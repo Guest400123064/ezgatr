@@ -228,14 +228,11 @@ def equi_linear(
 ) -> torch.Tensor:
     r"""Perform Pin-equivariant linear map defined by weight on input x.
 
-    One way to think of the equivariant linear map is a channel-wise
-    "map-reduce", where the same weight (of one neuron) are applied to
-    all channels of the input multi-vector and the results are summed up
-    along the basis/blade axis. In other words, the map is a channel-mixing
-    operation. Using a parallel analogy with a regular ``nn.Linear`` layer,
-    each channel of a input multi-vector corresponds to a "feature value"
-    of a simple hidden representation, and the number of output channels
-    is the number of neurons in the hidden layer.
+    The equivariant linear map is a channel-mixing operation. Using a
+    parallel analogy with a regular ``nn.Linear`` layer, each multi-vector
+    channel of a input tensor corresponds to a "feature value" of a simple
+    hidden representation, and the number of output channels is the number
+    of neurons in that hidden layer.
 
     Within each channel, similar to the geometric product implementation,
     the linear operation starts with a matrix multiplication between the
