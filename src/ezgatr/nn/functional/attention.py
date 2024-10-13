@@ -172,7 +172,7 @@ def equi_geometric_attention(
     dropout_p: float = 0.0,
     is_causal: bool = False,
     scale: float | None = None,
-) -> torch.Tensor | tuple[torch.Tensor, torch.Tensor]:
+) -> GeometricQKVType:
     r"""Equivariant geometric attention.
 
     Parameters
@@ -180,8 +180,8 @@ def equi_geometric_attention(
     query : GeometricQKVType
         Multi-vector query tensor with shape (B, H, T, qk_channels, 16). If
         scalar channel tensors are supplied, they should be included in a tuple
-        with the multi-vector tensors. The scalar channel tensors should have
-        shape (B, H, T, qk_scalar_dim).
+        with the multi-vector tensors, i.e., ``(q_mv, q_s)``. The scalar channel
+        tensors should have shape (B, H, T, qk_scalar_dim).
     key : GeometricQKVType
         Multi-vector key tensor with shape (B, H, T, qk_channels, 16). If
         scalar channel tensors are supplied, they should be included in a tuple
@@ -217,7 +217,7 @@ def equi_geometric_attention(
 
     Returns
     -------
-    torch.Tensor | tuple[torch.Tensor, torch.Tensor]
+    GeometricQKVType
         Output tensor with shape (B, H, T, v_channels, 16). Return a tuple with
         the second element being the scalar channel tensor if scalar channel
         tensors are supplied, shape of (B, H, T, v_scalar_dim).
