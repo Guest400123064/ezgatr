@@ -245,10 +245,10 @@ def equi_geometric_attention(
 
         # Save the index for the scalar channel tensors to separate them from the multi-vector
         # channel tensors after the attention calculation.
-        value = torch.cat([_flatten_ck(value), value_scl], dim=-1)
+        value = torch.cat([_flatten_ck(value), value_scl], dim=-1)  # type: ignore[arg-type]
         index_scl = -value_scl.shape[-1]
     else:
-        value = _flatten_ck(value)
+        value = _flatten_ck(value)  # type: ignore[arg-type]
         index_scl = None
 
     # Weights are only applied to the multi-vector channel tensors even if

@@ -19,12 +19,20 @@ from ezgatr.nn.functional import (
 from tests.utils import make_random_clifford_mvs, mv_to_tensor
 
 
-class TestRegressionWithClifford:
-    """Outputs should align with those from ``clifford`` implementation."""
+class TestRegression:
+    """Outputs from different implementations should align.
+
+    This collection of tests primarily ensures that the outputs from the
+    ``ezgatr`` are consistent internally and externally. For instance,
+    the operators leveraging kernels for computational efficiency should
+    agree with their slower, explicit counter parts. Or outputs of basic
+    geometric algebra operations should agree with the implementation of
+    ``clifford`` library.
+    """
 
 
-class TestEquivariance:
-    """Certain operators should be equivariant."""
+class TestPinEquivariance:
+    """Certain operators should be pin-equivariant."""
 
 
 def test_geometric_product():
