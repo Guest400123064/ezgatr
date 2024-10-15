@@ -325,7 +325,7 @@ class MVOnlyGATrAttention(nn.Module):
             is_causal=self.config.attn_is_causal,
             dropout_p=self.config.attn_dropout_p,
             scale=self.config.attn_scale,
-        )
+        )  # type: ignore[assignment]
         x = rearrange(x, "b h t c k -> b t (h c) k", h=self.config.attn_num_heads)
         x = self.proj_out(x)
 
