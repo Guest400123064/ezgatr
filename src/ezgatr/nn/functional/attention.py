@@ -217,10 +217,11 @@ def equi_geometric_attention(
 
     Returns
     -------
-    GeometricQKVType
-        Output tensor with shape (B, H, T, v_channels, 16). Return a tuple with
-        the second element being the scalar channel tensor if scalar channel
-        tensors are supplied, shape of (B, H, T, v_scalar_dim).
+    tuple[torch.Tensor, torch.Tensor | None]
+        Return a tuple with the first element being the multi-vector channel tensor
+        of shape (B, H, T, v_channels, 16). If scalar channel tensors are supplied,
+        the second element is the scalar channel tensor of shape
+        (B, H, T, v_scalar_dim), otherwise, it is ``None``.
     """
     qs: list[torch.Tensor] = []
     ks: list[torch.Tensor] = []
@@ -276,4 +277,4 @@ def equi_geometric_attention(
     )
     if index_scl is not None:
         return _inflate_ck(ret[..., :index_scl]), ret[..., index_scl:]
-    return _inflate_ck(ret)
+    return _inflate_ck(ret), None
