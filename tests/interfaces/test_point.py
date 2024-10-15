@@ -33,6 +33,7 @@ class TestInterfacePoint:
         of the existence of the homogeneous coordinate.
         """
         pcs = _make_random_batch_of_pcs()
+        enc = encode_pga(pcs)
 
-        torch.testing.assert_close(pcs, decode_pga(scale * encode_pga(pcs)))
-        torch.testing.assert_close(pcs, decode_pga(-scale * encode_pga(pcs)))
+        torch.testing.assert_close(pcs, decode_pga(enc * scale))
+        torch.testing.assert_close(pcs, decode_pga(enc * scale * -1.0))
