@@ -64,6 +64,15 @@ def make_random_pga_mvs(
     return ret
 
 
+def make_random_3d_vectors(batch_dims: tuple[int]):
+    r"""Generate batches of random 3D vectors for testing.
+
+    This utility function can be used to generate random 3D vectors
+    for testing point cloud, plane normal vectors, translations, etc.
+    """
+    return torch.randn(*batch_dims, 3)
+
+
 def strategy_batch_dims(
     max_dims: int = 3, min_size: int = 1, max_size: int = 2048
 ):
