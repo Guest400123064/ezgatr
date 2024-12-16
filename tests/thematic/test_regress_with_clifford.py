@@ -1,13 +1,3 @@
-"""Outputs from different implementations should align.
-
-This collection of tests primarily ensures that the outputs from the
-``ezgatr`` are consistent internally and externally. For instance,
-the operators leveraging kernels for computational efficiency should
-agree with their slower, explicit counter parts. Or outputs of basic
-geometric algebra operations should agree with the implementation of
-``clifford`` library.
-"""
-
 from __future__ import annotations
 
 import torch
