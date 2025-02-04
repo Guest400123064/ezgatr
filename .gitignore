@@ -163,7 +163,3 @@ cython_debug/
 
 # VS Code
 .vscode/
-
-# Cline docs
-cline_docs/
-.clinerules
