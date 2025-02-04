@@ -30,6 +30,7 @@ coverage = {extras = ["toml"], version = "^7.6.1"}
 mypy = "^1.11.2"
 numba = "<0.59.0"
 clifford = "^1.4.0"
+toml = "^0.10.2"
 
 
 [tool.poetry.group.docs.dependencies]

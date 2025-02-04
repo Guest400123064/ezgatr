@@ -1,0 +1,13 @@
+# Core Configurations for ezgatr Tests
+
+execution_device = "cpu"  # The device on which tests are executed (e.g., "cpu", "cuda")
+numerical_precision = 1e-5  # The tolerance level for numerical precision in tests
+rtol = 1e-5  # Relative tolerance for torch.testing.assert_close
+atol = 1e-8  # Absolute tolerance for torch.testing.assert_close
+equal_nan = true  # If true, then two NaNs will be considered equal
+check_device = false  # If true, check that input and other are on the same device
+check_dtype = true  # If true, check that input and other have the same dtype
+num_random_data_points = 100  # The number of random data points generated for tests
+data_point_size = 256  # The size of each random data point
+
+# Add additional core configurations as needed.

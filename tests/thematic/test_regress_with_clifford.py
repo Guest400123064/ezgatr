@@ -1,12 +1,9 @@
 from __future__ import annotations
 
 import torch
-import numpy as np
 from hypothesis import given, settings
 
 from ezgatr.nn.functional import (
-    equi_dual,
-    equi_join,
     geometric_product,
     outer_product,
 )

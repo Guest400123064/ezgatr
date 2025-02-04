@@ -3,8 +3,8 @@ from __future__ import annotations
 import torch
 from hypothesis import given, settings
 
-from ezgatr.interfaces.plane import encode_pga, decode_pga
-from ezgatr.nn.functional import inner_product, geometric_product
+from ezgatr.interfaces.plane import encode_pga
+from ezgatr.nn.functional import geometric_product, inner_product
 from tests.utils import make_random_3d_vectors, strategy_batch_dims
 
 

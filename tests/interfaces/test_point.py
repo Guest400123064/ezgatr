@@ -4,7 +4,7 @@ import torch
 from hypothesis import given
 from hypothesis.strategies import floats
 
-from ezgatr.interfaces.point import encode_pga, decode_pga
+from ezgatr.interfaces.point import decode_pga, encode_pga
 from tests.utils import make_random_3d_vectors
 
 
