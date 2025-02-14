@@ -1,21 +1,20 @@
-[tool.poetry]
+[project]
 name = "ezgatr"
 version = "0.1.0-alpha"
 description = ""
 authors = [
-    "guest400123064 <wangy49@seas.upenn.edu>",
-    "M4D-SC1ENTIST <xiatao.sun@yale.edu>"
+    {name = "guest400123064", email = "wangy49@seas.upenn.edu"},
+    {name = "M4D-SC1ENTIST", email = "xiatao.sun@yale.edu"}
 ]
 readme = "README.md"
 packages = [
     { include = "ezgatr", from = "src" }
 ]
-
-[tool.poetry.dependencies]
-python = "<3.12,^3.9"
-torch = "^2.4.1"
-einops = "^0.8.0"
-numpy = "<2.1"
+requires-python = ">=3.10"
+dependencies = [
+    "torch (>=2.0.0,<2.4.1)",
+    "einops (>=0.8.1,<0.9.0)",
+]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.3"
