@@ -223,6 +223,11 @@ class MVOnlyGATrMLP(nn.Module):
             same number of hidden channels.
         """
         residual = x
+        reference = reference or torch.mean(
+            x,
+            dim=tuple(range(1, len(x.shape) - 1)),
+            keepdim=True,
+        )
 
         x = self.layer_norm(x)
         x = self.equi_bil(x, reference)
