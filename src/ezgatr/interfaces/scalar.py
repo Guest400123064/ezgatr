@@ -1,7 +1,7 @@
 import torch
 
 
-def encode_pga(scalars: torch.Tensor) -> torch.Tensor:
+def encode(scalars: torch.Tensor) -> torch.Tensor:
     r"""Encode scalars into multi-vectors with PGA.
 
     This function **assumes that the scalar tensor has shape (..., 1)**
@@ -23,7 +23,7 @@ def encode_pga(scalars: torch.Tensor) -> torch.Tensor:
     return torch.cat([scalars, pad], dim=-1)
 
 
-def decode_pga(mvs: torch.Tensor) -> torch.Tensor:
+def decode(mvs: torch.Tensor) -> torch.Tensor:
     r"""Extract scalars from multi-vectors with PGA.
 
     This function do not automatically squeeze the last dimension when returning

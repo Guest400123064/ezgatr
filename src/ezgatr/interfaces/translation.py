@@ -1,7 +1,7 @@
 import torch
 
 
-def encode_pga(positions: torch.Tensor) -> torch.Tensor:
+def encode(positions: torch.Tensor) -> torch.Tensor:
     r"""Encode translations into multi-vectors with PGA.
 
     We use the convention that translations are represented by the ``xyz`` coordinates
@@ -26,6 +26,6 @@ def encode_pga(positions: torch.Tensor) -> torch.Tensor:
     return ret
 
 
-def decode_pga(_: torch.Tensor) -> torch.Tensor:
+def decode(_: torch.Tensor) -> torch.Tensor:
     msg = "Translation interface is not equivariant and decode is not used."
     raise NotImplementedError(msg)

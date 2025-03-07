@@ -4,7 +4,7 @@ from ezgatr.interfaces import translation
 from ezgatr.nn.functional.linear import geometric_product
 
 
-def encode_pga(normals: torch.Tensor, positions: torch.Tensor) -> torch.Tensor:
+def encode(normals: torch.Tensor, positions: torch.Tensor) -> torch.Tensor:
     r"""Encode planes into multi-vectors with PGA.
 
     Parameters
@@ -24,13 +24,13 @@ def encode_pga(normals: torch.Tensor, positions: torch.Tensor) -> torch.Tensor:
     )
     ret[..., 2:5] = normals[..., :]
     ret = geometric_product(
-        geometric_product(translation.encode_pga(positions), ret),
-        translation.encode_pga(-positions),
+        geometric_product(translation.encode(positions), ret),
+        translation.encode(-positions),
     )
     return ret
 
 
-def decode_pga(mvs: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+def decode(mvs: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
     r"""Extract normal and translation vectors from multi-vectors with PGA.
 
     Note that the translation vectors associated with each plane is not unique.

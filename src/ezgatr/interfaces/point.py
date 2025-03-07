@@ -1,7 +1,7 @@
 import torch
 
 
-def encode_pga(points: torch.Tensor) -> torch.Tensor:
+def encode(points: torch.Tensor) -> torch.Tensor:
     r"""Encode 3D points into multi-vectors with PGA.
 
     Parameters
@@ -23,7 +23,7 @@ def encode_pga(points: torch.Tensor) -> torch.Tensor:
     return ret
 
 
-def decode_pga(mvs: torch.Tensor, eps: float = 1e-6) -> torch.Tensor:
+def decode(mvs: torch.Tensor, eps: float = 1e-6) -> torch.Tensor:
     r"""Extract 3D points from multi-vectors with PGA.
 
     One needs to divide the coordinates by the homogeneous coordinate to obtain

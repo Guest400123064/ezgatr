@@ -1,7 +1,7 @@
 import torch
 
 
-def encode_pga(quaternions: torch.Tensor) -> torch.Tensor:
+def encode(quaternions: torch.Tensor) -> torch.Tensor:
     r"""Encode 3D rotation (as quaternions) into multi-vectors with PGA.
 
     Parameters
@@ -30,7 +30,7 @@ def encode_pga(quaternions: torch.Tensor) -> torch.Tensor:
     return ret
 
 
-def decode_pga(mvs: torch.Tensor, normalize: bool = False) -> torch.Tensor:
+def decode(mvs: torch.Tensor, normalize: bool = False) -> torch.Tensor:
     r"""Extract quaternions from multi-vectors with PGA.
 
     Parameters

@@ -3,7 +3,7 @@ from __future__ import annotations
 import torch
 from hypothesis import given, settings
 
-from ezgatr.interfaces.plane import encode_pga
+from ezgatr.interfaces.plane import encode
 from ezgatr.nn.functional import geometric_product, inner_product
 from tests.utils import make_random_3d_vectors, strategy_batch_dims
 
@@ -19,7 +19,7 @@ def test_pga_plane_inner_eq_sq_norm(batch_dims):
     normals = make_random_3d_vectors(batch_dims)
     translations = make_random_3d_vectors(batch_dims)
     norms = (torch.norm(normals, dim=-1) ** 2).squeeze()
-    enc = encode_pga(normals, translations)
+    enc = encode(normals, translations)
 
     torch.testing.assert_close(
         inner_product(enc, enc).squeeze(),
