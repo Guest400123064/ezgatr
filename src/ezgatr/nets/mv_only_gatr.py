@@ -223,11 +223,6 @@ class MVOnlyGATrMLP(nn.Module):
             same number of hidden channels.
         """
         residual = x
-        reference = reference or torch.mean(
-            x,
-            dim=tuple(range(1, len(x.shape) - 1)),
-            keepdim=True,
-        )
 
         x = self.layer_norm(x)
         x = self.equi_bil(x, reference)
@@ -418,6 +413,11 @@ class MVOnlyGATrModel(nn.Module):
         reference: torch.Tensor | None = None,
         attn_mask: torch.Tensor | None = None,
     ) -> torch.Tensor:
+        reference = reference or torch.mean(
+            x,
+            dim=tuple(range(1, len(x.shape) - 1)),
+            keepdim=True,
+        )
         x = reduce(
             lambda x, block: block(x, reference, attn_mask),
             self.blocks,
