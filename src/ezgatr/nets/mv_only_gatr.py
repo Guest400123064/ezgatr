@@ -134,14 +134,12 @@ class MVOnlyGATrBilinear(nn.Module):
         super().__init__()
 
         self.config = config
-        if config.size_channels_intermediate % 2 != 0:
-            raise ValueError("Number of hidden channels must be even.")
 
         self.proj_bil = EquiLinear(
-            config.size_channels_hidden, config.size_channels_intermediate * 2
+            config.size_channels_hidden, config.size_channels_intermediate * 4
         )
         self.proj_out = EquiLinear(
-            config.size_channels_intermediate, config.size_channels_hidden
+            config.size_channels_intermediate * 2, config.size_channels_hidden
         )
 
     def forward(
@@ -162,7 +160,7 @@ class MVOnlyGATrBilinear(nn.Module):
             Batch of output hidden multi-vector representation tensor of the
             same number of hidden channels.
         """
-        size_inter = self.config.size_channels_intermediate // 2
+        size_inter = self.config.size_channels_intermediate
         lg, rg, lj, rj = torch.split(self.proj_bil(x), size_inter, dim=-2)
 
         x = torch.cat([geometric_product(lg, rg), equi_join(lj, rj, reference)], dim=-2)
