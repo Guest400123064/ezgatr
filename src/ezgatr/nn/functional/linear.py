@@ -70,7 +70,9 @@ def _load_bilinear_basis(
 
 
 @functools.lru_cache(maxsize=None, typed=True)
-def _compute_inner_product_selector(device: torch.device) -> torch.Tensor:
+def _compute_inner_product_selector(
+    device: torch.device, keep_tri_vector: bool = True
+) -> torch.Tensor:
     r"""Load the indices for PGA inner product to the device.
 
     PGA inner product operation exclude the coefficients corresponding to
@@ -82,12 +84,18 @@ def _compute_inner_product_selector(device: torch.device) -> torch.Tensor:
     ----------
     device : torch.device
         Device for the indices.
+    keep_tri_vector : bool
+        Drop the tri-vector index (``e_123``) if set to ``False``. This is
+        used in the inner-product component of the geometric attention.
 
     Returns
     -------
         torch.Tensor
     """
-    return torch.tensor([0, 2, 3, 4, 8, 9, 10, 14], device=device)
+    idx = [0, 2, 3, 4, 8, 9, 10, 14]
+    if not keep_tri_vector:
+        idx.pop(-1)
+    return torch.tensor(idx, device=device)
 
 
 @functools.lru_cache(maxsize=None, typed=True)

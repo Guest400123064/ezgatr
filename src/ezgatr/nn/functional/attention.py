@@ -76,16 +76,14 @@ def _compute_daa_qk_basis(
     return bq, bk
 
 
-def _linear_square_normalizer(
-    e123: torch.Tensor, eps: float | None = None
-) -> torch.Tensor:
+def _linear_square_normalizer(e123: torch.Tensor, eps: float) -> torch.Tensor:
     r"""Apply linear square normalization to the input tensor.
 
     Parameters
     ----------
     e123 : torch.Tensor
         Coefficients corresponds to the ``e_123`` blade.
-    eps : float, optional
+    eps : float
         Small value to avoid division by zero.
 
     Returns
@@ -93,14 +91,13 @@ def _linear_square_normalizer(
     torch.Tensor
         Normalized multi-vector tensor.
     """
-    eps = eps or torch.finfo(e123.dtype).eps
     return e123 / (e123.pow(2) + eps)
 
 
 def compute_qk_for_daa(
     query: torch.Tensor,
     key: torch.Tensor,
-    eps: float | None = None,
+    eps: float = 1e-3,
 ) -> tuple[torch.Tensor, torch.Tensor]:
     r"""Compute the query and key tensors for the distance-aware attention.
 
@@ -110,7 +107,7 @@ def compute_qk_for_daa(
         Query tensor with shape (B, H, T, qk_channels, 16).
     key : torch.Tensor
         Key tensor with shape (B, H, T, qk_channels, 16).
-    eps : float, optional
+    eps : float, default to ``1e-3``
         Small value to avoid division by zero used in the linear square normalizer.
 
     Returns
@@ -150,7 +147,10 @@ def compute_qk_for_ipa(
     """
 
     def _build_inner_vec(q_or_k):
-        sel = _compute_inner_product_selector(q_or_k.device)
+        sel = _compute_inner_product_selector(
+            q_or_k.device,
+            keep_tri_vector=False,
+        )
         return torch.index_select(q_or_k, -1, sel)
 
     return _build_inner_vec(query), _build_inner_vec(key)
